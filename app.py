@@ -5,9 +5,9 @@ import numpy as np
 # 1. ตั้งค่าหน้าเว็บ
 st.set_page_config(page_title="AETHERA Professional Dashboard", layout="wide")
 
-# 2. หัวข้อหลักพร้อมสไตล์
-st.markdown("<h1 style='text-align: center; color: #00A8E8;'>💎 AETHERA Smart Energy Platform</h1>", unsafe_allow_input=True)
-st.markdown("<p style='text-align: center;'>ระบบบริหารจัดการและจับคู่ซื้อขายไฟฟ้าอัจฉริยะ (Real-time P2P Trading)</p>", unsafe_allow_input=True)
+# 2. หัวข้อหลักพร้อมสไตล์ (แก้คำสะกดตรง unsafe_allow_html)
+st.markdown("<h1 style='text-align: center; color: #00A8E8;'>💎 AETHERA Smart Energy Platform</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center;'>ระบบบริหารจัดการและจับคู่ซื้อขายไฟฟ้าอัจฉริยะ (Real-time P2P Trading)</p>", unsafe_allow_html=True)
 
 # 3. ตั้งค่า Wheeling Charge (Sidebar)
 st.sidebar.header("⚙️ การตั้งค่าราคาโครงข่าย")
@@ -31,9 +31,8 @@ df = pd.DataFrame({"Station": ids, "Type": types, "Price (฿)": prices, "Energy
 
 # 5. แสดงกราฟวิเคราะห์ราคา
 st.write("### 📈 กราฟเปรียบเทียบราคาเสนอซื้อ-ขายแต่ละสถานี")
-# สร้างกราฟแยกสีตามประเภท
-chart_data = df.pivot(index='Station', columns='Type', values='Price (฿)')
-st.bar_chart(chart_data)
+chart_df = df.pivot(index='Station', columns='Type', values='Price (฿)')
+st.bar_chart(chart_df)
 
 st.divider()
 
