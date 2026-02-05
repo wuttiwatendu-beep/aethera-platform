@@ -3,59 +3,59 @@ import pandas as pd
 import numpy as np
 
 # 1. ตั้งค่าหน้าเว็บ
-st.set_page_config(page_title="AETHERA Platform", layout="wide")
+st.set_page_config(page_title="AETHERA Professional Dashboard", layout="wide")
 
-# 2. หัวข้อหลัก
-st.title("💎 AETHERA Smart Energy Platform")
-st.subheader("ระบบจับคู่ซื้อขายไฟฟ้าอัตโนมัติ (Peer-to-Peer Matching)")
+# 2. หัวข้อหลักพร้อมสไตล์
+st.markdown("<h1 style='text-align: center; color: #00A8E8;'>💎 AETHERA Smart Energy Platform</h1>", unsafe_allow_input=True)
+st.markdown("<p style='text-align: center;'>ระบบบริหารจัดการและจับคู่ซื้อขายไฟฟ้าอัจฉริยะ (Real-time P2P Trading)</p>", unsafe_allow_input=True)
 
 # 3. ตั้งค่า Wheeling Charge (Sidebar)
-st.sidebar.header("⚙️ ตั้งค่า Wheeling Charge")
-t_fee = st.sidebar.number_input("1. ค่าระบบส่ง", value=0.2800, format="%.4f")
-s_fee = st.sidebar.number_input("2. ค่าความมั่นคง", value=0.5303, format="%.4f")
-p_fee = st.sidebar.number_input("3. ค่าสนับสนุนนโยบาย", value=0.5000, format="%.4f")
+st.sidebar.header("⚙️ การตั้งค่าราคาโครงข่าย")
+t_fee = st.sidebar.slider("1. ค่าระบบส่ง (Transmission)", 0.1, 1.0, 0.28)
+s_fee = st.sidebar.slider("2. ค่าความมั่นคง (Security)", 0.1, 1.0, 0.53)
+p_fee = st.sidebar.slider("3. ค่าสนับสนุนนโยบาย (Policy)", 0.1, 1.0, 0.50)
 total_wheeling = t_fee + s_fee + p_fee
 
-# 4. สร้างข้อมูลสถานี (จำลอง 30 แห่ง)
+st.sidebar.metric("รวม Wheeling Charge", f"{total_wheeling:.4f} ฿")
+st.sidebar.divider()
+st.sidebar.write("💡 *ปรับแถบเลื่อนเพื่อจำลองราคาที่เปลี่ยนไป*")
+
+# 4. สร้างข้อมูลสถานี (30 แห่ง)
 np.random.seed(42)
 ids = [f"ST-{i+1:02d}" for i in range(30)]
-types = np.random.choice(["ผู้ขาย (Seller)", "ผู้ซื้อ (Buyer)"], 30)
-amounts = np.random.uniform(20, 80, 30).round(2)
-prices = np.random.uniform(2.5, 4.0, 30).round(2)
+types = np.random.choice(["Seller", "Buyer"], 30)
+prices = np.random.uniform(2.5, 4.5, 30).round(2)
+amounts = np.random.randint(50, 200, 30)
 
-df = pd.DataFrame({"ID": ids, "ประเภท": types, "ปริมาณ (kWh)": amounts, "ราคาเสนอ (฿)": prices})
+df = pd.DataFrame({"Station": ids, "Type": types, "Price (฿)": prices, "Energy (kWh)": amounts})
 
-# 5. ระบบ Matching เบื้องต้น
-sellers = df[df['ประเภท'] == "ผู้ขาย (Seller)"].sort_values("ราคาเสนอ (฿)")
-buyers = df[df['ประเภท'] == "ผู้ซื้อ (Buyer)"].sort_values("ราคาเสนอ (฿)", ascending=False)
-
-# แสดงผล Dashboard
-st.write("### 📊 สรุปภาพรวมเครือข่าย")
-c1, c2, c3 = st.columns(3)
-c1.metric("ผู้ขายในระบบ", f"{len(sellers)} ราย")
-c2.metric("ผู้ซื้อในระบบ", f"{len(buyers)} ราย")
-c3.metric("ค่าธรรมเนียมรวม", f"{total_wheeling:.4f} ฿")
+# 5. แสดงกราฟวิเคราะห์ราคา
+st.write("### 📈 กราฟเปรียบเทียบราคาเสนอซื้อ-ขายแต่ละสถานี")
+# สร้างกราฟแยกสีตามประเภท
+chart_data = df.pivot(index='Station', columns='Type', values='Price (฿)')
+st.bar_chart(chart_data)
 
 st.divider()
 
-# 6. แสดงผลการจับคู่
-st.write("### 🤝 ผลการจับคู่ซื้อขายที่คุ้มที่สุด (Top Matches)")
-match_data = []
+# 6. ส่วนการจับคู่ (Matching)
+st.write("### 🤝 สรุปการจับคู่ซื้อขายที่คุ้มค่าที่สุด")
+sellers = df[df['Type'] == "Seller"].sort_values("Price (฿)")
+buyers = df[df['Type'] == "Buyer"].sort_values("Price (฿)", ascending=False)
+
+match_list = []
 for i in range(min(len(sellers), len(buyers))):
     s = sellers.iloc[i]
     b = buyers.iloc[i]
-    final_price = s['ราคาเสนอ (฿)'] + total_wheeling
-    match_data.append({
-        "ผู้ขาย": s['ID'],
-        "ผู้ซื้อ": b['ID'],
-        "ราคาต้นทาง (฿)": s['ราคาเสนอ (฿)'],
-        "ค่าส่ง (Wheeling)": f"{total_wheeling:.4f}",
-        "ราคาจ่ายจริง (฿)": round(final_price, 4),
-        "สถานะ": "✅ Matching Success"
+    match_list.append({
+        "จากผู้ขาย": s['Station'],
+        "ส่งให้ผู้ซื้อ": b['Station'],
+        "ราคาต้นทาง": f"{s['Price (฿)']} ฿",
+        "ค่าส่ง (Wheeling)": f"{total_wheeling:.2f} ฿",
+        "ราคาที่ผู้ซื้อต้องจ่าย": f"{s['Price (฿)'] + total_wheeling:.2f} ฿",
+        "สถานะ": "⚡ Connected"
     })
 
-st.table(pd.DataFrame(match_data).head(10)) # โชว์ 10 คู่แรก
+st.table(pd.DataFrame(match_list).head(8))
 
-st.divider()
-st.write("### 📋 บัญชีรายชื่อสถานีทั้งหมด")
-st.dataframe(df, use_container_width=True)
+# 7. สรุปท้ายหน้า
+st.info(f"ระบบกำลังจำลองการซื้อขายสำหรับ 30 สถานี | อัตราค่าธรรมเนียมปัจจุบัน: {total_wheeling:.4f} บาท/หน่วย")
