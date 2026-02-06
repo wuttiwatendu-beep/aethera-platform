@@ -8,52 +8,46 @@ st.set_page_config(page_title="RMUTI AETHERA COMMAND", layout="wide")
 
 st.markdown("""
     <style>
-    /* ปรับแต่งหัวข้อโครงการ (Title & Subtitle) ให้ได้ระดับตามที่คุณนุขีดเส้นไว้ */
-    .header-container {
-        display: flex;
-        align-items: flex-end; /* จัดให้เนื้อหาอยู่ระดับแนวล่าง */
-        padding-bottom: 10px;
-    }
+    /* จัดเลย์เอาต์หัวข้อให้ลงมาในระดับแนวเส้นใต้ */
     .project-title {
         font-size: 2.6rem !important;
         font-weight: 800;
-        color: #b43d8b; /* สีชมพูเข้มตามรูป */
-        margin-bottom: -5px;
+        color: #b43d8b; /* สีชมพูเข้ม */
+        margin-bottom: 0px;
         line-height: 1.1;
     }
     .project-subtitle {
         font-size: 2.0rem !important;
         font-weight: 700;
         color: #1e3a8a; /* สีน้ำเงิน */
-        margin-top: 5px;
-        margin-bottom: 0px;
+        margin-top: 8px;
     }
     
-    /* สไตล์สำหรับ Metrics และส่วนอื่น ๆ ให้ยังคงความชัดเจน */
+    /* สไตล์สำหรับส่วนอื่นๆ ให้สวยงามและชัดเจน */
     [data-testid="stMetricValue"] { font-size: 3.0rem !important; font-weight: 800 !important; color: #1e3a8a; }
-    .esg-box { text-align: center; }
+    .esg-box { text-align: center; margin-bottom: 20px; }
     .esg-number { font-size: 1.8rem !important; font-weight: 800; color: #1f2937; }
     
     .section-header {
         font-size: 1.4rem !important; font-weight: 700; color: #1e3a8a;
-        border-left: 8px solid #f59e0b; padding-left: 12px; margin: 10px 0;
+        border-left: 8px solid #f59e0b; padding-left: 12px; margin: 15px 0;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# 2. Header Area: Adjusted to the Underline Level
+# 2. Header Area: Precise Alignment
 col_logo, col_text = st.columns([1, 5])
 
 with col_logo:
-    st.image("rmut.png", width=220) # ตราโลโก้มหาวิทยาลัย
+    st.image("rmut.png", width=220) # ตราโลโก้
 
 with col_text:
-    # ปรับระดับช่องว่าง (Gap) ให้ตัวหนังสือลงมาอยู่ที่ระดับแนวเส้นใต้ที่คุณนุขีดไว้
-    st.markdown("<div style='height: 105px;'></div>", unsafe_allow_html=True) 
+    # เพิ่มระยะช่องว่างลงมาอีก "เท่าตัว" ตามที่คุณนุสั่ง (จาก 105px เป็น 210px)
+    st.markdown("<div style='height: 210px;'></div>", unsafe_allow_html=True) 
     st.markdown('<p class="project-title">โครงการติดตั้งระบบไฟฟ้าจากพลังงานแสงอาทิตย์</p>', unsafe_allow_html=True)
     st.markdown('<p class="project-subtitle">มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน ศูนย์กลางนครราชสีมา และ ศูนย์การศึกษาหนองระเวียง</p>', unsafe_allow_html=True)
 
-# 3. Environmental Impact (ESG) - แถวบนสุดรองจากหัวข้อ
+# 3. Environmental Impact (ESG) Zone
 st.write("")
 e_pad, e1, e2, e3, e_pad2 = st.columns([1, 1, 1, 1, 1])
 with e1:
@@ -74,26 +68,26 @@ with e3:
 
 st.divider()
 
-# 4. Main Metrics & Grid Analysis
+# 4. Main Metrics & Data Analysis
 m1, m2, m3, m4 = st.columns(4)
 m1.metric("Real-Time (kW)", "2,854.56")
 m2.metric("Total Yield (MW)", "54.473")
 m3.metric("Peak Capacity (kW)", "2,854.56")
-m4.metric("P2P Volume (kWh)", "80.3")
+m4.metric("P2P Volume Today (kWh)", "80.3")
 
-col_l, col_r = st.columns(2)
+col_left, col_right = st.columns(2)
 
-with col_l:
+with col_left:
     st.markdown("<div class='section-header'>📈 24-Hour Solar Production Trend (kW)</div>", unsafe_allow_html=True)
-    # กราฟ 24 ชม. สีส้มทอง
+    # กราฟสีส้มทองตามต้นฉบับ
     hours = [f"{i:02d}:00" for i in range(24)]
     gen_vals = [0,0,0,0,0,50,300,900,1800,2500,2854,2700,2400,1900,1100,400,80,0,0,0,0,0,0,0]
     fig_solar = go.Figure(go.Scatter(x=hours, y=gen_vals, fill='tozeroy', line_color='#f59e0b'))
     fig_solar.update_layout(height=280, margin=dict(l=0,r=0,t=0,b=0))
     st.plotly_chart(fig_solar, use_container_width=True)
 
-    st.markdown("<div class='section-header'>📊 Station Details (9 Central + 1 NRW)</div>", unsafe_allow_html=True)
-    # แสดงข้อมูล 9 อาคารศูนย์กลาง (รวม A, B สำรอง) และ 1 อาคารหนองระเวียง
+    st.markdown("<div class='section-header'>📋 Station Details (9+1 Stations)</div>", unsafe_allow_html=True)
+    # ตาราง 10 สถานี (ศูนย์กลาง 9 + หนองระเวียง 1)
     df_stations = pd.DataFrame([
         {"อาคาร": "สำนักส่งเสริมวิชาการฯ (35)", "kW": 485.76, "Zone": "ศูนย์กลาง"},
         {"อาคาร": "คณะบริหารธุรกิจ (32)", "kW": 400.00, "Zone": "ศูนย์กลาง"},
@@ -108,7 +102,7 @@ with col_l:
     ])
     st.table(df_stations)
 
-with col_r:
+with col_right:
     st.markdown("<div class='section-header'>⚡ Today Power Mix (kW)</div>", unsafe_allow_html=True)
     # กราฟ Power Mix แดง-ฟ้า
     fig_mix = go.Figure()
@@ -118,12 +112,11 @@ with col_r:
     st.plotly_chart(fig_mix, use_container_width=True)
 
     st.markdown("<div class='section-header'>📅 Monthly Generation (MW)</div>", unsafe_allow_html=True)
-    # กราฟรายเดือนสีม่วง
+    # กราฟแท่งสีม่วง
     fig_monthly = go.Figure(go.Bar(x=[f"{i+1:02d}" for i in range(28)], y=[80, 235, 255, 270, 245, 165]+[0]*22, marker_color='#a855f7'))
-    fig_monthly.update_layout(height=230, margin=dict(t=0, b=0))
+    fig_monthly.update_layout(height=220, margin=dict(t=0, b=0))
     st.plotly_chart(fig_monthly, use_container_width=True)
     
-    # P2P Trading Status
-    st.markdown("<div class='section-header'>🤝 Live P2P Trading</div>", unsafe_allow_html=True)
+    # P2P Trading History
     st.success("✅ Admin ⚡ Hall(2): 12.5 kWh")
     st.info("✅ Business(32) ⚡ Lib(4): 25.0 kWh")
