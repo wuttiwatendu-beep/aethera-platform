@@ -1,27 +1,88 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import base64
 
 # 1. ตั้งค่าหน้าจอ
 st.set_page_config(page_title="RMUTI Smart Grid", layout="wide")
 
-# --- ส่วนข้อมูลรูปภาพ (Base64) ที่แปลงจากรูปของคุณนุโดยตรง ---
-# วิธีนี้รูปจะติดไปกับโค้ด ไม่ต้องโหลดจากเน็ต รูปขึ้นชัวร์ 100% ครับ
-CO2_B64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAABkCAYAAADD8U2vAAAACXBIWXMAAAsTAAALEwEAmpwYAAAKT2lDQ1BQaG90b3Nob3AgSUNDIHByb2ZpbGUAAHjanVNnVFPpFj33vvRCSMlEAqSREhJBVEjoSBNQce9SO6ICG6GDIu66ILpYUCvOEXpP5O6OqCie9+6fN7mP3Pmc795797775m7vAAC06YAg1158AFJDB0P+tI9Z745p90A4EABU8AABAID/mB92i37AByIAZ8DBVAcCA88AA9Ag97D4GAAA/+IABAID/mB92i37AByIAZ8DBVAcCA88AA9Ag97D4GAAA/+IABAID/mB92i37AByIAZ8DBVAcCA88AA9Ag97D4GAAA/9sAQwAGBAUGBQQGBgUGBwcGCAoQCgoJCQoUDg8MEBcUGBgXFBYWGh0lHxobIxwWFiAsICMmJykqKRkfLTAtKDAlKCko/9sAQwEHBwcKCAoTCgoTKBoWGigoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgo/8AAEQgAZACgAwEiAAIRAQMRAf/EAB8AAAEFAQEBAQEBAAAAAAAAAAABAgMEBQYHCAkKC//EALUQAAIBAwMCBAMFBQQEAAABfQECAwAEEQUSITFBBhNRYQcicRQygZGhCCNCscEVUtHwJDNicoIJChYXGBkaJSYnKCkqNDU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6g4SFhoeIiYqSk5SVl6fY2drh4uPk5ebn6Onq8fLz9PX29/j5+v/EAB8BAAMBAQEBAQEBAQEAAAAAAAABAgMEBQYHCAkKC//EALURAAIBAgQEAwQHBQQEAAECBA1ADRBIRFUhM1FhJDNnoUBCYpGSk2JyggkqOGkzRTIn8fLCA0OTInPklJWl5uLj5uXm5+jp6vLz9PX29/j5+v/aAAwDAQACEQMRAD8A+mKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigD//Z"
-COAL_B64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAABkCAYAAADD8U2vAAAACXBIWXMAAAsTAAALEwEAmpwYAAAKT2lDQ1BQaG90b3Nob3AgSUNDIHByb2ZpbGUAAHjanVNnVFPpFj33vvRCSMlEAqSREhJBVEjoSBNQce9SO6ICG6GDIu66ILpYUCvOEXpP5O6OqCie9+6fN7mP3Pmc795797775m7vAAC06YAg1158AFJDB0P+tI9Z745p90A4EABU8AABAID/mB92i37AByIAZ8DBVAcCA88AA9Ag97D4GAAA/+IABAID/mB92i37AByIAZ8DBVAcCA88AA9Ag97D4GAAA/+IABAID/mB92i37AByIAZ8DBVAcCA88AA9Ag97D4GAAA/9sAQwAGBAUGBQQGBgUGBwcGCAoQCgoJCQoUDg8MEBcUGBgXFBYWGh0lHxobIxwWFiAsICMmJykqKRkfLTAtKDAlKCko/9sAQwEHBwcKCAoTCgoTKBoWGigoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgo/8AAEQgAZACgAwEiAAIRAQMRAf/EAB8AAAEFAQEBAQEBAAAAAAAAAAABAgMEBQYHCAkKC//EALUQAAIBAwMCBAMFBQQEAAABfQECAwAEEQUSITFBBhNRYQcicRQygZGhCCNCscEVUtHwJDNicoIJChYXGBkaJSYnKCkqNDU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6g4SFhoeIiYqSk5SVl6fY2drh4uPk5ebn6Onq8fLz9PX29/j5+v/EAB8BAAMBAQEBAQEBAQEAAAAAAAABAgMEBQYHCAkKC//EALURAAIBAgQEAwQHBQQEAAECBA1ADRBIRFUhM1FhJDNnoUBCYpGSk2JyggkqOGkzRTIn8fLCA0OTInPklJWl5uLj5uXm5+jp6vLz9PX29/j5+v/aAAwDAQACEQMRAD8A+mKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigD//Z"
-TREE_B64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAABkCAYAAADD8U2vAAAACXBIWXMAAAsTAAALEwEAmpwYAAAKT2lDQ1BQaG90b3Nob3AgSUNDIHByb2ZpbGUAAHjanVNnVFPpFj33vvRCSMlEAqSREhJBVEjoSBNQce9SO6ICG6GDIu66ILpYUCvOEXpP5O6OqCie9+6fN7mP3Pmc795797775m7vAAC06YAg1158AFJDB0P+tI9Z745p90A4EABU8AABAID/mB92i37AByIAZ8DBVAcCA88AA9Ag97D4GAAA/+IABAID/mB92i37AByIAZ8DBVAcCA88AA9Ag97D4GAAA/+IABAID/mB92i37AByIAZ8DBVAcCA88AA9Ag97D4GAAA/9sAQwAGBAUGBQQGBgUGBwcGCAoQCgoJCQoUDg8MEBcUGBgXFBYWGh0lHxobIxwWFiAsICMmJykqKRkfLTAtKDAlKCko/9sAQwEHBwcKCAoTCgoTKBoWGigoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgo/8AAEQgAZACgAwEiAAIRAQMRAf/EAB8AAAEFAQEBAQEBAAAAAAAAAAABAgMEBQYHCAkKC//EALUQAAIBAwMCBAMFBQQEAAABfQECAwAEEQUSITFBBhNRYQcicRQygZGhCCNCscEVUtHwJDNicoIJChYXGBkaJSYnKCkqNDU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6g4SFhoeIiYqSk5SVl6fY2drh4uPk5ebn6Onq8fLz9PX29/j5+v/EAB8BAAMBAQEBAQEBAQEAAAAAAAABAgMEBQYHCAkKC//EALURAAIBAgQEAwQHBQQEAAECBA1ADRBIRFUhM1FhJDNnoUBCYpGSk2JyggkqOGkzRTIn8fLCA0OTInPklJWl5uLj5uXm5+jp6vLz9PX29/j5+v/aAAwDAQACEQMRAD8A+mKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigD//Z"
-
-# CSS สำหรับจัดการแสดงผล Card
+# CSS ตกแต่ง Card
 st.markdown("""
     <style>
     .env-card {
-        background-color: white;
-        padding: 25px;
+        background-color: #ffffff;
+        padding: 20px;
         border-radius: 15px;
         text-align: center;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         border: 1px solid #e1e8ed;
-        margin-bottom: 20px;
     }
-    .env-title { color: #004a7c; font-weight: bold; font-size: 1.1rem; margin-bottom:
+    .env-title { color: #004a7c; font-weight: bold; font-size: 1.1rem; margin-bottom: 5px; }
+    .env-value { font-size: 1.8rem; font-weight: bold; color: #E85D04; }
+    .icon-box { font-size: 4rem; margin: 15px 0; }
+    </style>
+    """, unsafe_allow_html=True)
+
+# 2. ข้อมูลอาคาร
+df = pd.DataFrame([
+    {"อาคาร": "G กลุ่มวิชาชีพเครื่องกล", "kW": 354.56, "Zone": "หนองระเวียง", "Lat": 14.9435, "Lon": 102.2140},
+    {"อาคาร": "สำนักส่งเสริมวิชาการฯ (35)", "kW": 485.76, "Zone": "ศูนย์กลาง", "Lat": 14.9922, "Lon": 102.1162},
+    {"อาคาร": "คณะบริหารธุรกิจ (32)", "kW": 400.00, "Zone": "ศูนย์กลาง", "Lat": 14.9925, "Lon": 102.1155},
+    {"อาคาร": "สำนักวิทยบริการฯ (4)", "kW": 280.00, "Zone": "ศูนย์กลาง", "Lat": 14.9910, "Lon": 102.1165},
+    {"อาคาร": "หอประชุมวทัญญูฯ (2)", "kW": 250.00, "Zone": "ศูนย์กลาง", "Lat": 14.9905, "Lon": 102.1158},
+    {"อาคาร": "สำนักงานอธิการบดี (1)", "kW": 220.00, "Zone": "ศูนย์กลาง", "Lat": 14.9915, "Lon": 102.1160}
+])
+
+# --- HEADER ---
+st.markdown("<h1 style='text-align: center; color: #E85D04;'>🏛️ RMUTI AETHERA: Executive Dashboard</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center;'>ระบบบริหารจัดการพลังงานอัจฉริยะ มทร.อีสาน</p>", unsafe_allow_html=True)
+
+# --- ส่วนที่ 1: Environment Benefits (ใช้ Emoji แทนรูปภาพเพื่อให้แสดงผลได้แน่นอน) ---
+st.markdown("<div style='text-align: center; margin-bottom: 20px;'><span style='background-color: #00A8E8; color: white; padding: 5px 25px; border-radius: 20px; font-weight: bold;'>🔵 Environment Benefits</span></div>", unsafe_allow_html=True)
+
+c1, c2, c3 = st.columns(3)
+
+with c1:
+    st.markdown("""
+        <div class='env-card'>
+            <div class='env-title'>CO2 Emission Saved</div>
+            <div class='icon-box'>☁️</div>
+            <div class='env-value'>40.13 tons</div>
+        </div>
+    """, unsafe_allow_html=True)
+
+with c2:
+    st.markdown("""
+        <div class='env-card'>
+            <div class='env-title'>Standard Coal Saved</div>
+            <div class='icon-box'>🪨</div>
+            <div class='env-value'>21.93 tons</div>
+        </div>
+    """, unsafe_allow_html=True)
+
+with c3:
+    st.markdown("""
+        <div class='env-card'>
+            <div class='env-title'>Equivalent Trees Planted</div>
+            <div class='icon-box'>🌳</div>
+            <div class='env-value'>1,507 trees</div>
+        </div>
+    """, unsafe_allow_html=True)
+
+st.divider()
+
+# --- ส่วนที่ 2: ผังโครงข่าย ---
+col_l, col_r = st.columns([1.5, 1])
+
+with col_l:
+    st.subheader("🌐 Digital Twin Map")
+    fig = px.scatter_mapbox(df, lat="Lat", lon="Lon", color="Zone", size="kW",
+                            hover_name="อาคาร", zoom=11.2, height=450,
+                            color_discrete_map={"หนองระเวียง": "#00A8E8", "ศูนย์กลาง": "#E85D04"},
+                            mapbox_style="carto-positron")
+    fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
+    st.plotly_chart(fig, use_container_width=True)
+
+with col_r:
+    st.subheader("📊 ข้อมูลการติดตั้ง (kW)")
+    st.bar_chart(df.set_index("อาคาร")["kW"])
+    st.dataframe(df[["อาคาร", "kW"]].sort_values("kW
