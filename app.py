@@ -1,63 +1,49 @@
 import streamlit as st
-import pandas as pd
-import plotly.express as px
-import plotly.graph_objects as go # สำหรับทำ Sankey Diagram (Energy Flow)
+import plotly.graph_objects as go
 
-# 1. ตั้งค่า Page และ Sidebar
-st.set_page_config(page_title="RMUTI AETHERA Platform", layout="wide")
+def show_energy_flow():
+    st.markdown("### ⚡ Real-time Energy Flow (Zero Export Mode)")
+    st.info("💡 ระบบใช้พลังงานแสงอาทิตย์เป็นหลัก หากไม่พอจะดึงไฟจากการไฟฟ้าอัตโนมัติ")
 
-# สร้าง Sidebar สำหรับเลือกหน้า
-st.sidebar.image("https://www.rmuti.ac.th/main/wp-content/uploads/2019/11/logo-rmuti-1.png", width=100)
-st.sidebar.title("Navigation")
-page = st.sidebar.radio("Go to", ["Dashboard Overview", "P2P Trading", "Smart Energy Flow"])
+    # ตัวเลขจำลองที่สัมพันธ์กับ 2,854.56 kW ของคุณนุ
+    solar_gen = 1850.0  # ผลิตได้ตอนนี้
+    total_load = 2200.0 # ความต้องการใช้ไฟทั้งหมด
+    pea_import = total_load - solar_gen # ส่วนต่างที่ดึงจากไฟหลวง
+    p2p_transfer = 150.0 # มีการเทรดกันภายใน
 
-# 2. ข้อมูลอาคาร (9-10 อาคารที่คุณนุต้องการให้เห็นครบ)
-df_nodes = pd.DataFrame([
-    {"อาคาร": "สำนักส่งเสริมวิชาการฯ (35)", "kW": 485.76, "Zone": "ศูนย์กลาง"},
-    {"อาคาร": "คณะบริหารธุรกิจ (32)", "kW": 400.00, "Zone": "ศูนย์กลาง"},
-    {"อาคาร": "G กลุ่มวิชาชีพเครื่องกล", "kW": 354.56, "Zone": "หนองระเวียง"},
-    {"อาคาร": "อาคารเรียนรวม 7", "kW": 314.24, "Zone": "ศูนย์กลาง"},
-    {"อาคาร": "สำนักวิทยบริการฯ (4)", "kW": 280.00, "Zone": "ศูนย์กลาง"},
-    {"อาคาร": "หอประชุมวทัญญูฯ (2)", "kW": 250.00, "Zone": "ศูนย์กลาง"},
-    {"อาคาร": "สำนักงานอธิการบดี (1)", "kW": 220.00, "Zone": "ศูนย์กลาง"},
-    {"อาคาร": "Sports Complex", "kW": 200.00, "Zone": "ศูนย์กลาง"},
-    {"อาคาร": "อาคารปฏิบัติการไฟฟ้า", "kW": 180.00, "Zone": "หนองระเวียง"},
-    {"อาคาร": "โรงอาหารหนองระเวียง", "kW": 170.00, "Zone": "หนองระเวียง"}
-])
-
-# --- หน้าที่ 1: Dashboard Overview (อ้างอิงจาก image_58c223.png) ---
-if page == "Dashboard Overview":
-    st.markdown("## 🏛️ RMUTI Smart Grid Overview")
-    # (โค้ดส่วน Metric และ Environment Benefits ที่คุณนุใช้ล่าสุด)
-    st.info("หน้านี้แสดงภาพรวม 10 อาคาร และค่า CO2/Trees/Coal")
-
-# --- หน้าที่ 2: P2P Trading (อ้างอิงจาก image_591b9b.png) ---
-elif page == "P2P Trading":
-    st.markdown("## 🤝 Peer-to-Peer Energy Market")
-    # (โค้ดส่วนตารางซื้อขายและกราฟราคา Market Price)
-    st.success("หน้านี้สำหรับบริหารจัดการการซื้อขายไฟระหว่างอาคารในศูนย์กลาง")
-
-# --- หน้าที่ 3: Smart Energy Flow (หน้าใหม่ที่คุณนุต้องการ) ---
-elif page == "Smart Energy Flow":
-    st.markdown("## ⚡ Interactive Energy Flow (Solar vs Grid)")
-    
-    # ทำ Sankey Diagram แสดงการไหลของไฟ
+    # สร้าง Sankey Diagram โทนสว่าง
     fig = go.Figure(data=[go.Sankey(
         node = dict(
-          pad = 15, thickness = 20,
-          label = ["Solar Rooftop", "PEA Grid", "Main Transformer", "Central Campus", "Nong Rawiang"],
-          color = ["#FFD700", "#FF4B4B", "#333333", "#004a7c", "#004a7c"]
+          pad = 20, thickness = 30,
+          label = ["☀️ Solar PV", "🔌 PEA Grid", "🏦 RMUTI Busbar", "🏫 Central Campus", "🚜 Nong Rawiang"],
+          color = ["#FBC02D", "#E57373", "#90A4AE", "#0288D1", "#0288D1"]
         ),
         link = dict(
-          source = [0, 1, 2, 2], # แหล่งจ่าย (Solar, Grid -> Transformer -> Campus)
-          target = [2, 2, 3, 4], 
-          value = [2854, 1200, 2500, 1554] # ปริมาณ kW ที่ไหล
+          source = [0, 1, 2, 2], # ต้นทาง
+          target = [2, 2, 3, 4], # ปลายทาง
+          value = [solar_gen, pea_import, 1400, 800], # ปริมาณ kW
+          # สีเส้น: เหลือง (Solar), แดง (Grid)
+          color = ["rgba(251, 192, 45, 0.4)", "rgba(229, 115, 115, 0.4)", 
+                   "rgba(2, 136, 209, 0.2)", "rgba(2, 136, 209, 0.2)"]
       ))])
+
+    fig.update_layout(
+        title_text="RMUTI Energy Distribution (kW)",
+        font_size=12,
+        height=500,
+        paper_bgcolor="white",
+        plot_bgcolor="white"
+    )
     
     st.plotly_chart(fig, use_container_width=True)
-    st.markdown("""
-    **คำอธิบายกราฟิก:**
-    * เส้นสีเหลืองแทนพลังงานจาก **Solar Rooftop**
-    * เส้นสีแดงแทนการรับไฟจาก **การไฟฟ้า (PEA Grid)**
-    * ความหนาของเส้นแสดงปริมาณพลังงาน (kW) ที่ใช้งานจริงในแต่ละโซน
-    """)
+
+    # แถบแสดงสถานะ
+    c1, c2 = st.columns(2)
+    with c1:
+        st.success(f"✅ Solar Contribution: {(solar_gen/total_load)*100:.1f}%")
+    with c2:
+        st.warning(f"🔌 Grid Reliance: {(pea_import/total_load)*100:.1f}%")
+
+# เรียกใช้ฟังก์ชันในหน้าเมนูที่เลือก
+if page == "Smart Energy Flow":
+    show_energy_flow()
