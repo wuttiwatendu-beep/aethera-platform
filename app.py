@@ -4,132 +4,141 @@ import plotly.graph_objects as go
 import requests
 import numpy as np
 
-# 1. Page Configuration
+# --- 1. SETTINGS & STYLES ---
 st.set_page_config(page_title="AETHERA COMMAND PLATFORM", layout="wide")
 
 st.markdown("""
     <style>
-    /* พื้นหลังโทนสว่าง */
-    .main { background-color: #f8fafc; }
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+    html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
     
-    .platform-header { font-size: 1.8rem; font-weight: 700; color: #1e3a8a; margin-bottom: 0px; }
-    .project-title { font-size: 2.2rem; font-weight: 800; color: #b43d8b; line-height: 1.2; }
-    .location-title { font-size: 1.4rem; font-weight: 600; color: #1e40af; }
+    .main { background-color: #f1f5f9; }
     
-    /* กล่องสภาพอากาศสไตล์ใหม่ */
-    .weather-box {
-        background: #ffffff;
-        border: 1px solid #e2e8f0;
-        border-radius: 12px;
-        padding: 15px;
-        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-    }
+    /* Header Styles */
+    .title-area { padding: 20px 0px; }
+    .platform-label { font-size: 1.2rem; font-weight: 600; color: #64748b; letter-spacing: 1px; }
+    .project-main-title { font-size: 2.5rem; font-weight: 800; color: #1e3a8a; margin: 5px 0; line-height: 1.1; }
+    .location-sub { font-size: 1.4rem; font-weight: 500; color: #475569; }
 
-    /* ✅ ปรับไอคอน ESG ให้ใหญ่ขึ้น 2 เท่า และตัวเลขให้เด่น */
+    /* ✅ Professional ESG Cards */
+    .st-emotion-cache-12w0qpk { gap: 1rem; } /* Streamlit column gap */
     .esg-card {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
-        background: #ffffff;
-        border-radius: 15px;
+        background: white;
+        padding: 30px 20px;
+        border-radius: 20px;
         border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        text-align: center;
+        transition: transform 0.2s;
     }
-    .esg-value { font-size: 2.5rem !important; font-weight: 800; color: #1e293b; margin-top: 10px; }
-    .esg-label { font-size: 1.1rem; color: #64748b; font-weight: 500; }
+    .esg-card:hover { transform: translateY(-5px); }
+    .esg-value { font-size: 2.8rem; font-weight: 800; color: #0f172a; margin: 15px 0 5px 0; }
+    .esg-unit { font-size: 1.1rem; color: #64748b; font-weight: 600; }
+
+    /* Weather Box */
+    .weather-card {
+        background: white;
+        border-radius: 16px;
+        padding: 15px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+    }
     </style>
     """, unsafe_allow_html=True)
 
-# 2. Weather Data
+# --- 2. DATA PROCESSING ---
 def get_weather():
     try:
         url = "https://api.open-meteo.com/v1/forecast?latitude=14.97&longitude=102.10&current=temperature_2m,relative_humidity_2m"
-        return requests.get(url).json()['current']
+        data = requests.get(url).json()['current']
+        return data
     except: return {"temperature_2m": 33.3, "relative_humidity_2m": 40}
 
-w = get_weather()
+weather = get_weather()
 
-# 3. Header Section
-h1, h2, h3 = st.columns([1, 4, 1.8])
+# --- 3. HEADER SECTION ---
+header_l, header_m, header_r = st.columns([1, 4, 2])
 
-with h1:
-    st.image("rmut.png", width=140)
+with header_l:
+    st.image("rmut.png", width=160)
 
-with h2:
-    st.markdown('<p class="platform-header">AETHERA COMMAND PLATFORM</p>', unsafe_allow_html=True)
-    st.markdown('<p class="project-title">โครงการติดตั้งระบบไฟฟ้าจากพลังงานแสงอาทิตย์</p>', unsafe_allow_html=True)
-    st.markdown('<p class="location-title">มทร.อีสาน ศูนย์กลางนครราชสีมา และ ศูนย์การศึกษาหนองระเวียง</p>', unsafe_allow_html=True)
-
-with h3:
-    st.image("NetZero platform 1.png", width=240)
-    st.markdown(f"""
-    <div class="weather-box">
-        <small style='color: #64748b;'>📍 Nakhon Ratchasima Weather</small><br>
-        <b style='font-size: 1.8rem; color: #0f172a;'>{w['temperature_2m']}°C</b><br>
-        <small style='color: #94a3b8;'>Humidity: {w['relative_humidity_2m']}% | Wind: 5.6 km/h</small>
-    </div>
+with header_m:
+    st.markdown("""
+        <div class="title-area">
+            <div class="platform-label">AETHERA COMMAND PLATFORM</div>
+            <div class="project-main-title">โครงการติดตั้งระบบไฟฟ้าจากพลังงานแสงอาทิตย์</div>
+            <div class="location-sub">มทร.อีสาน ศูนย์กลางนครราชสีมา และ ศูนย์การศึกษาหนองระเวียง</div>
+        </div>
     """, unsafe_allow_html=True)
 
-# 4. ESG Metrics: Large Icons & Centered Numbers
+with header_r:
+    st.image("NetZero platform 1.png", width=260)
+    st.markdown(f"""
+        <div class="weather-card">
+            <div style="color: #64748b; font-size: 0.9rem; font-weight: 600;">📍 Nakhon Ratchasima Weather</div>
+            <div style="font-size: 2rem; font-weight: 800; color: #2563eb;">{weather['temperature_2m']}°C</div>
+            <div style="color: #94a3b8; font-size: 0.85rem;">Humidity: {weather['relative_humidity_2m']}% | Wind: 5.6 km/h</div>
+        </div>
+    """, unsafe_allow_html=True)
+
 st.write("")
-btn_col, c1, c2, c3 = st.columns([1, 1.5, 1.5, 1.5])
 
-with btn_col:
-    st.markdown("<div style='height: 60px;'></div>", unsafe_allow_html=True)
-    st.button("ESG Metrics", use_container_width=True)
+# --- 4. ESG METRICS (Professional Alignment) ---
+# สร้าง Grid ที่สมดุล
+label_col, c1, c2, c3 = st.columns([1, 2, 2, 2])
 
-with c1:
-    st.markdown("<div class='esg-card'>", unsafe_allow_html=True)
-    st.image("CO2.png", width=120) # ขยายใหญ่ขึ้น 2 เท่า
-    st.markdown("<div class='esg-value'>27.24 T</div>", unsafe_allow_html=True)
-    st.markdown("<div class='esg-label'>CO2 Saved</div>", unsafe_allow_html=True)
-    st.markdown("</div>", unsafe_allow_html=True)
+with label_col:
+    st.markdown("<div style='height: 70px;'></div>", unsafe_allow_html=True)
+    st.button("ESG Metrics", use_container_width=True, type="primary")
 
-with c2:
-    st.markdown("<div class='esg-card'>", unsafe_allow_html=True)
-    st.image("Coal.png", width=120) # ขยายใหญ่ขึ้น 2 เท่า
-    st.markdown("<div class='esg-value'>21.79 T</div>", unsafe_allow_html=True)
-    st.markdown("<div class='esg-label'>Coal Saved</div>", unsafe_allow_html=True)
-    st.markdown("</div>", unsafe_allow_html=True)
+# ฟังก์ชันแสดงผล Card เพื่อความเป๊ะของตำแหน่ง
+def esg_block(col, img_file, value, label):
+    with col:
+        st.markdown(f"""<div class='esg-card'>""", unsafe_allow_html=True)
+        st.image(img_file, width=130) # ขนาดใหญ่ชัดเจนกึ่งกลาง
+        st.markdown(f"""
+            <div class='esg-value'>{value}</div>
+            <div class='esg-unit'>{label}</div>
+        </div>""", unsafe_allow_html=True)
 
-with c3:
-    st.markdown("<div class='esg-card'>", unsafe_allow_html=True)
-    st.image("Tree.png", width=120) # ขยายใหญ่ขึ้น 2 เท่า
-    st.markdown("<div class='esg-value'>680</div>", unsafe_allow_html=True)
-    st.markdown("<div class='esg-label'>Trees Planted</div>", unsafe_allow_html=True)
-    st.markdown("</div>", unsafe_allow_html=True)
+esg_block(c1, "CO2.png", "27.24 T", "CO2 Saved")
+esg_block(c2, "Coal.png", "21.79 T", "Coal Saved")
+esg_block(c3, "Tree.png", "680", "Trees Planted")
 
-# 5. Performance Metrics
-st.markdown("### 3: Performance Metrics")
-m = st.columns(6)
-metrics_data = [
+# --- 5. PERFORMANCE METRICS GRID ---
+st.write("")
+st.subheader("📊 3: Performance Metrics")
+m_cols = st.columns(6)
+m_data = [
     ("Real-Time (kW)", "2,854.56"), ("Total Yield (MW)", "54.47"),
     ("Peak Capacity (kW)", "2,854.56"), ("Daily Yield (MW)", "28.80"),
     ("Solar Capacity (kW)", "10"), ("P2P Volume Today", "80.3")
 ]
-for i, (label, val) in enumerate(metrics_data):
-    m[i].metric(label, val)
+for i, (label, val) in enumerate(m_data):
+    with m_cols[i]:
+        st.markdown(f"""
+            <div style="background: white; padding: 15px; border-radius: 12px; border-left: 5px solid #2563eb; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <div style="color: #64748b; font-size: 0.85rem; font-weight: 600;">{label}</div>
+                <div style="font-size: 1.4rem; font-weight: 800; color: #1e293b;">{val}</div>
+            </div>
+        """, unsafe_allow_html=True)
 
-# 6. Graphs & Station Details (Full Data Restored)
+# --- 6. CHARTS & STATION DETAILS (RELOADED) ---
+st.write("")
 st.divider()
-col_left, col_right = st.columns([1.6, 1])
+chart_col, table_col = st.columns([1.7, 1])
 
-with col_left:
-    st.subheader("⚡ 24-Hour Solar Production (kW)")
-    fig1 = go.Figure(go.Scatter(x=list(range(24)), y=np.random.normal(1500, 500, 24), fill='tozeroy', line_color='#f59e0b'))
-    st.plotly_chart(fig1, use_container_width=True)
-    
-    st.subheader("📊 Today Power Mix (kW)")
-    fig2 = go.Figure()
-    fig2.add_trace(go.Scatter(y=np.random.normal(40, 5, 24), name="Load", fill='tozeroy', line_color='#ef4444'))
-    fig2.add_trace(go.Scatter(y=np.random.normal(20, 3, 24), name="Solar", fill='tozeroy', line_color='#3b82f6'))
-    st.plotly_chart(fig2, use_container_width=True)
+with chart_col:
+    # กราฟที่ 1: การผลิตไฟ
+    st.markdown("### ⚡ 24-Hour Solar Production (kW)")
+    x_hours = [f"{i:02d}:00" for i in range(24)]
+    y_vals = [5,5,10,60,200,800,1800,2500,2854,2700,2100,1200,500,100,20,5,5,5,5,5,5,5,5,5]
+    fig_main = go.Figure(go.Scatter(x=x_hours, y=y_vals, fill='tozeroy', line_color='#f59e0b', fillcolor='rgba(245, 158, 11, 0.2)'))
+    fig_main.update_layout(margin=dict(l=0, r=0, t=20, b=0), height=300, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
+    st.plotly_chart(fig_main, use_container_width=True)
 
-with col_right:
-    st.subheader("✅ Station Details")
-    df = pd.DataFrame({
-        "อาคาร (Station)": ["สนง.วิชาการฯ (35)", "บริหารธุรกิจ (32)", "อาคาร A (สำรอง)", "อาคาร B (สำรอง)", "เครื่องกล (G)", "เรียนรวม 7", "วิทยบริการฯ (4)", "หอประชุม (2)"],
-        "kW": [485.76, 400.00, 380.00, 365.00, 354.56, 314.24, 280.00, 250.00]
-    })
-    st.table(df)
+    # กราฟที่ 2: Power Mix
+    st.markdown("### 📊 Today Power Mix (kW)")
+    fig_mix = go.Figure()
+    fig_mix.add_trace(go.Scatter(y=np.random.normal(45, 2, 24), name="Grid Load", fill='tozeroy', line_color='#ef4444'))
+    fig_mix.add_trace(go.Scatter(y=np.random.normal(25, 2, 24), name="Solar Generation", fill='to
