@@ -1,26 +1,35 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
 import plotly.express as px
 
-# 1. การตั้งค่าหน้าจอ (Theme สีสว่าง)
-st.set_page_config(page_title="RMUTI Smart Grid", layout="wide")
+# 1. ตั้งค่าหน้าจอ (โทนสว่าง Professional)
+st.set_page_config(page_title="RMUTI AETHERA Dashboard", layout="wide")
 
+# CSS สำหรับตกแต่ง Card และ Icons
 st.markdown("""
     <style>
-    .main { background-color: #fcfcfc; }
-    .stMetric { 
+    .main { background-color: #f8fafc; }
+    .env-card {
         background-color: #ffffff; 
         padding: 20px; 
-        border-radius: 12px; 
-        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        border-radius: 15px; 
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        text-align: center;
+        border: 1px solid #e2e8f0;
+    }
+    .stMetric { 
+        background-color: #ffffff; 
+        padding: 15px; 
+        border-radius: 10px; 
         border-top: 5px solid #E85D04;
     }
-    h1 { color: #E85D04 !important; font-weight: 800; }
-    h3 { color: #334155 !important; }
+    h1 { color: #E85D04 !important; font-weight: 800; text-align: center; }
+    h3 { color: #006699 !important; font-weight: 600; }
     </style>
     """, unsafe_allow_html=True)
 
-# 2. ข้อมูลโครงการ (ยึดตามเอกสารคุณนุ 9+1 Nodes)
+# 2. ข้อมูลโครงการ (9+1 Nodes)
 data = [
     {"อาคาร": "G กลุ่มวิชาชีพเครื่องกล (หนองระเวียง)", "kW": 354.56, "กลุ่ม": "หนองระเวียง", "Lat": 14.9435, "Lon": 102.2140},
     {"อาคาร": "สำนักส่งเสริมวิชาการฯ (อาคาร 35)", "kW": 485.76, "กลุ่ม": "ศูนย์กลาง", "Lat": 14.9922, "Lon": 102.1162},
@@ -35,59 +44,22 @@ data = [
 ]
 df = pd.DataFrame(data)
 
-# --- ส่วนที่ 1: หัวข้อและสรุปตัวเลข (Dashboard Header) ---
+# --- HEADER ---
 st.title("🏛️ RMUTI AETHERA: Smart University Grid")
-st.write("ระบบบริหารจัดการพลังงานสะอาด ระยะที่ 1 | เริ่มติดตั้ง มีนาคม 2569")
+st.markdown("<p style='text-align: center;'>ระบบบริหารจัดการพลังงานอัจฉริยะ มทร.อีสาน (Phase 1: มีนาคม 2569)</p>", unsafe_allow_html=True)
 
-# Metrics สวยๆ 3 ช่อง
-m1, m2, m3 = st.columns(3)
-m1.metric("กำลังผลิตรวมศูนย์กลาง", "2.50 MW", "9 อาคารหลัก")
-m2.metric("กำลังผลิตหนองระเวียง", "354.56 kW", "อาคารเครื่องกล")
-m3.metric("เป้าหมายการประหยัด", "4.2 ล้านบาท/ปี", "ROI 4.5 ปี")
+# --- ส่วนที่ 1: Environment Benefits (Icons & Stats) ---
+st.markdown("<h3 style='text-align: center;'>🔵 Environment Benefits</h3>", unsafe_allow_html=True)
+col_env1, col_env2, col_env3 = st.columns(3)
 
-st.divider()
+with col_env1:
+    st.markdown("""
+        <div class='env-card'>
+            <p style='font-weight: bold; color: #64748b;'>CO2 Emission Saved</p>
+            <img src='https://cdn-icons-png.flaticon.com/512/1843/1843544.png' width='70'>
+            <h2 style='color: #22c55e;'>40.13 <span style='font-size: 16px; color: #94a3b8;'>tons</span></h2>
+        </div>
+    """, unsafe_allow_html=True)
 
-# --- ส่วนที่ 2: การแสดงผลแผนที่และตาราง (Layout 2 ส่วน) ---
-left_col, right_col = st.columns([1.5, 1])
-
-with left_col:
-    st.subheader("🌐 ผังโครงข่ายดิจิทัล (Digital Twin)")
-    # ใช้ Scatter Mapbox แบบสีสว่าง (เสถียรที่สุด)
-    fig = px.scatter_mapbox(df, lat="Lat", lon="Lon", color="กลุ่ม", size="kW",
-                            hover_name="อาคาร", zoom=11.2, height=500,
-                            color_discrete_map={"หนองระเวียง": "#00A8E8", "ศูนย์กลาง": "#E85D04"},
-                            mapbox_style="carto-positron")
-    fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
-    st.plotly_chart(fig, use_container_width=True)
-
-with right_col:
-    st.subheader("📊 ข้อมูลแยกตามจุดติดตั้ง")
-    # กราฟแท่งโชว์ศักยภาพรายตึก
-    st.bar_chart(df.set_index('อาคาร')['kW'])
-    # ตารางรายละเอียดแบบ Clean
-    st.dataframe(df[['อาคาร', 'kW']].sort_values(by='kW', ascending=False), 
-                 hide_index=True, use_container_width=True)
-
-# --- ส่วนที่ 3: ระบบเทรดจำลอง (P2P Program) ---
-st.divider()
-st.subheader("🤝 ระบบจำลองการเทรดพลังงาน (Smart P2P Program)")
-st.info("จำลองการจับคู่พลังงานส่วนเกินจากแหล่งผลิต (Source) ไปยังอาคารที่มีความต้องการ (Buyer)")
-
-col_t1, col_t2 = st.columns(2)
-with col_t1:
-    st.success("**Matching Active**")
-    trade_df = pd.DataFrame({
-        "ผู้ส่งพลังงาน (Seller)": ["อาคาร 35", "อาคาร G", "อาคาร 32"],
-        "ผู้รับพลังงาน (Buyer)": ["อธิการบดี", "อาคาร 4", "หอประชุม"],
-        "ปริมาณ": ["45.2 kWh", "122.5 kWh", "60.0 kWh"]
-    })
-    st.table(trade_df)
-
-with col_t2:
-    st.write("**สถานะการติดตั้ง (Phase 1)**")
-    st.write("📅 เริ่มติดตั้ง: มีนาคม 2569")
-    st.write("✅ สำรวจหน้างาน: 100%")
-    st.progress(25) # แถบความคืบหน้าโครงการ
-
-st.divider()
-st.caption("พัฒนาโดย มทร.อีสาน ร่วมกับ AETHERA Platform")
+with col_env2:
+    st.markdown("""
