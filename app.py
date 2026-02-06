@@ -4,7 +4,7 @@ import plotly.graph_objects as go
 import requests
 import numpy as np
 
-# --- 1. CORE CONFIG & CLEAN STYLE ---
+# --- 1. CORE CONFIG & PROFESSIONAL STYLING ---
 st.set_page_config(page_title="AETHERA COMMAND PLATFORM", layout="wide")
 
 st.markdown("""
@@ -12,121 +12,112 @@ st.markdown("""
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
     html, body, [class*="css"] { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
 
-    /* Header Styling */
-    .main-title { font-size: 2.2rem !important; font-weight: 800; color: #1e3a8a; line-height: 1.2; }
+    /* Header & Titles */
+    .main-title { font-size: 2.2rem !important; font-weight: 800; color: #1e3a8a; line-height: 1.2; margin-bottom: 5px; }
     .sub-title { font-size: 1.1rem; font-weight: 600; color: #b43d8b; }
 
-    /* ✅ ลบสี่เหลี่ยมว่างออก และจัดกลุ่มไอคอน+ตัวเลขให้สวยงาม */
-    .esg-container {
+    /* ✅ ESG Container: คลีน ไม่มีกล่องว่าง จัดวางกึ่งกลาง */
+    .esg-group {
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         text-align: center;
-        padding: 10px;
-    }
-    .esg-value { font-size: 3rem !important; font-weight: 800; color: #0f172a; margin-top: 15px; line-height: 1; }
-    .esg-label { font-size: 1.1rem; color: #64748b; font-weight: 600; margin-top: 5px; }
-
-    /* Metric Box for Row 3 */
-    .metric-card {
-        background: white;
         padding: 15px;
-        border-radius: 12px;
-        border: 1px solid #e2e8f0;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
+    .esg-value { font-size: 3rem !important; font-weight: 800; color: #0f172a; margin-top: 15px; }
+    .esg-label { font-size: 1.1rem; color: #64748b; font-weight: 600; }
+
+    /* Trading & Metric Cards */
+    .card-pro {
+        background: white;
+        padding: 20px;
+        border-radius: 16px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+    }
+    .trading-val { font-size: 1.8rem; font-weight: 800; color: #10b981; }
     </style>
     """, unsafe_allow_html=True)
 
-# --- 2. WEATHER API ---
-def get_weather():
-    try:
-        url = "https://api.open-meteo.com/v1/forecast?latitude=14.97&longitude=102.10&current=temperature_2m,relative_humidity_2m"
-        return requests.get(url, timeout=5).json()['current']
-    except: return {"temperature_2m": 33.3, "relative_humidity_2m": 40}
+# --- 2. HEADER SECTION ---
+h_l, h_m, h_r = st.columns([1, 4, 2])
 
-w = get_weather()
-
-# --- 3. HEADER SECTION ---
-h_left, h_mid, h_right = st.columns([1, 4, 2])
-
-with h_left:
+with h_l:
     st.image("rmut.png", width=150)
 
-with h_mid:
+with h_m:
     st.markdown('<p class="sub-title">AETHERA COMMAND PLATFORM</p>', unsafe_allow_html=True)
     st.markdown('<p class="main-title">โครงการติดตั้งระบบไฟฟ้าจากพลังงานแสงอาทิตย์</p>', unsafe_allow_html=True)
     st.markdown('<p style="color:#475569; font-weight:500;">มทร.อีสาน ศูนย์กลางนครราชสีมา และ ศูนย์การศึกษาหนองระเวียง</p>', unsafe_allow_html=True)
 
-with h_right:
+with h_r:
     st.image("NetZero platform 1.png", width=260)
     st.markdown(f"""
-        <div style="background: linear-gradient(90deg, #2563eb, #1d4ed8); color: white; padding: 15px; border-radius: 15px; margin-top: 10px;">
-            <small>📍 NAKHON RATCHASIMA</small><br>
-            <b style="font-size: 1.8rem;">{w['temperature_2m']}°C</b><br>
-            <small>Humidity: {w['relative_humidity_2m']}% | Wind: 5.6 km/h</small>
+        <div style="background: #2563eb; color: white; padding: 15px; border-radius: 15px; margin-top: 10px;">
+            <small>📍 NAKHON RATCHASIMA WEATHER</small><br>
+            <b style="font-size: 1.8rem;">33.3°C</b><br>
+            <small>Humidity: 40% | Wind: 5.6 km/h</small>
         </div>
     """, unsafe_allow_html=True)
 
-# --- 4. ESG METRICS (Clean & Large) ---
+# --- 3. ESG METRICS (Clean & Giant) ---
 st.write("")
-st.write("")
-# จัดวาง 4 คอลัมน์ (ปุ่ม + 3 ไอคอน)
-b_col, c1, c2, c3 = st.columns([1.2, 2, 2, 2])
+btn_c, c1, c2, c3 = st.columns([1.2, 2, 2, 2])
 
-with b_col:
+with btn_c:
     st.markdown("<div style='height: 80px;'></div>", unsafe_allow_html=True)
     st.button("ESG Metrics", use_container_width=True, type="primary")
 
-# ฟังก์ชันแสดงผลแบบ Professional ไม่มีกล่องว่างกวนใจ
-def display_esg(col, img, val, label):
+def esg_block(col, img, val, lab):
     with col:
-        st.markdown('<div class="esg-container">', unsafe_allow_html=True)
-        st.image(img, width=140) # ขยายรูปไอคอนให้ใหญ่เด่น
-        st.markdown(f'<div class="esg-value">{val}</div>', unsafe_allow_html=True)
-        st.markdown(f'<div class="esg-label">{label}</div>', unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown('<div class="esg-group">', unsafe_allow_html=True)
+        st.image(img, width=140) # ขยายไอคอนใหญ่สะใจ
+        st.markdown(f'<div class="esg-value">{val}</div><div class="esg-label">{lab}</div></div>', unsafe_allow_html=True)
 
-display_esg(c1, "CO2.png", "27.24 T", "CO2 Saved")
-display_esg(c2, "Coal.png", "21.79 T", "Coal Saved")
-display_esg(c3, "Tree.png", "680", "Trees Planted")
+esg_block(c1, "CO2.png", "27.24 T", "CO2 Saved")
+esg_block(c2, "Coal.png", "21.79 T", "Coal Saved")
+esg_block(c3, "Tree.png", "680", "Trees Planted")
 
-# --- 5. PERFORMANCE METRICS ---
+# --- 4. ⚡ NEW: P2P ENERGY TRADING SECTION ---
 st.write("")
-st.markdown("### 📊 3: Performance Metrics")
-m_cols = st.columns(6)
-m_labels = [("Real-Time (kW)", "2,854.56"), ("Total Yield (MW)", "54.47"), ("Peak Capacity (kW)", "2,854.56"), ("Daily Yield (MW)", "28.80"), ("Solar Capacity (kW)", "10"), ("P2P Volume Today", "80.3")]
+st.markdown("### 🤝 P2P Energy Trading")
+t1, t2, t3, t4 = st.columns(4)
 
-for i, (lab, val) in enumerate(m_labels):
-    with m_cols[i]:
-        st.markdown(f'<div class="metric-card"><small style="color:#64748b; font-weight:600;">{lab}</small><br><b style="font-size:1.4rem; color:#1e293b;">{val}</b></div>', unsafe_allow_html=True)
+trading_data = [
+    ("Total Trading Today", "150.5 kWh", "#10b981"),
+    ("Current Market Price", "4.20 THB", "#3b82f6"),
+    ("Successful Transactions", "24 Deals", "#f59e0b"),
+    ("Avoided Grid Cost", "632.10 THB", "#8b5cf6")
+]
 
-# --- 6. ANALYTICS & DETAILS (Restored) ---
+for i, (lab, val, col) in enumerate(trading_data):
+    with [t1, t2, t3, t4][i]:
+        st.markdown(f"""
+            <div class="card-pro" style="border-left: 6px solid {col};">
+                <small style="color:#64748b; font-weight:600;">{lab}</small><br>
+                <b style="font-size:1.6rem; color:{col};">{val}</b>
+            </div>
+        """, unsafe_allow_html=True)
+
+# --- 5. PERFORMANCE & ANALYTICS ---
 st.write("")
 st.divider()
-left, right = st.columns([1.8, 1])
+left_col, right_col = st.columns([1.8, 1])
 
-with left:
-    st.markdown("### ⚡ 24-Hour Solar Production (kW)")
-    # กราฟหลัก
-    fig1 = go.Figure(go.Scatter(x=list(range(24)), y=np.random.normal(1800, 300, 24), fill='tozeroy', line_color='#f59e0b', fillcolor='rgba(245, 158, 11, 0.1)'))
-    fig1.update_layout(height=280, margin=dict(l=0,r=0,t=10,b=0), paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
-    st.plotly_chart(fig1, use_container_width=True)
+with left_col:
+    st.markdown("### ⚡ 24-Hour Solar Production & Grid Mix")
+    # กราฟรวมข้อมูล
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(y=np.random.normal(2000, 400, 24), name="Solar Gen", fill='tozeroy', line_color='#f59e0b'))
+    fig.add_trace(go.Scatter(y=np.random.normal(1500, 200, 24), name="Grid Load", line_color='#ef4444'))
+    fig.update_layout(height=400, margin=dict(l=0,r=0,t=10,b=0), paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
+    st.plotly_chart(fig, use_container_width=True)
 
-    st.markdown("### 📊 Today Power Mix (kW)")
-    # กราฟ Power Mix
-    fig2 = go.Figure()
-    fig2.add_trace(go.Scatter(y=np.random.normal(45, 2, 24), name="Load", fill='tozeroy', line_color='#ef4444', fillcolor='rgba(239, 68, 68, 0.1)'))
-    fig2.add_trace(go.Scatter(y=np.random.normal(25, 2, 24), name="Solar", fill='tozeroy', line_color='#3b82f6', fillcolor='rgba(59, 130, 246, 0.1)'))
-    fig2.update_layout(height=280, margin=dict(l=0,r=0,t=10,b=0), paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
-    st.plotly_chart(fig2, use_container_width=True)
-
-with right:
-    # ตารางสถานี 8 แห่ง
-    st.markdown("### ✅ Station Details")
+with right_col:
+    st.markdown("### ✅ Station Details (Full List)")
     df = pd.DataFrame({
         "อาคาร (Station)": ["สนง.วิชาการฯ (35)", "บริหารธุรกิจ (32)", "อาคาร A (สำรอง)", "อาคาร B (สำรอง)", "เครื่องกล (G)", "เรียนรวม 7", "วิทยบริการฯ (4)", "หอประชุม (2)"],
-        "kW": [485.76, 400.00, 380.00, 365.00, 354.56, 314.24, 280.00, 250.00]
+        "kW Status": ["485.76", "400.00", "380.00", "365.00", "354.56", "314.24", "280.00", "250.00"]
     })
-    st.table(df)
+    st.table(df) # ข้อมูลครบทั้ง 8 สถานี
