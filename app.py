@@ -1,96 +1,105 @@
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
-import plotly.express as px
 
-# 1. Advanced Page Setup
-st.set_page_config(page_title="RMUTI AETHERA | Command Center", layout="wide", initial_sidebar_state="expanded")
+# 1. Page Configuration & Custom Theme
+st.set_page_config(page_title="RMUTI AETHERA Platform", layout="wide")
 
-# Custom CSS เพื่อสร้าง UI แบบ Dark Mode ผสม Modern Light (Professional Look)
 st.markdown("""
     <style>
-    [data-testid="stSidebar"] { background-color: #0e1117; color: white; }
-    .metric-card {
-        background-color: #ffffff; border-radius: 12px; padding: 20px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.08); border-left: 5px solid #1e3a8a;
+    .header-box {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        margin-bottom: 25px;
     }
-    .stPlotlyChart { border-radius: 15px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-    h1, h2, h3 { font-family: 'Inter', sans-serif; font-weight: 700; color: #1e3a8a; }
+    .main-title {
+        color: #1e3a8a;
+        font-family: 'Inter', sans-serif;
+        margin-left: 20px;
+        font-weight: 800;
+    }
+    .stMetric {
+        background: white;
+        padding: 15px;
+        border-radius: 12px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        border-bottom: 4px solid #f59e0b;
+    }
     </style>
     """, unsafe_allow_html=True)
 
-# 2. Data Preparation (เฉพาะอาคาร G ในโซนหนองระเวียง)
+# 2. ข้อมูลอาคาร (เหลืออาคาร G หนองระเวียงแห่งเดียวตามสั่ง)
 df_stations = pd.DataFrame([
     {"อาคาร": "สำนักส่งเสริมวิชาการฯ (35)", "kW": 485.76, "Zone": "ศูนย์กลาง"},
     {"อาคาร": "คณะบริหารธุรกิจ (32)", "kW": 400.00, "Zone": "ศูนย์กลาง"},
     {"อาคาร": "G กลุ่มวิชาชีพเครื่องกล", "kW": 354.56, "Zone": "หนองระเวียง"},
     {"อาคาร": "อาคารเรียนรวม 7", "kW": 314.24, "Zone": "ศูนย์กลาง"},
     {"อาคาร": "สำนักวิทยบริการฯ (4)", "kW": 280.00, "Zone": "ศูนย์กลาง"},
-    {"อาคาร": "หอประชุมวทัญญูฯ (2)", "kW": 250.00, "Zone": "ศูนย์กลาง"}
+    {"อาคาร": "หอประชุมวทัญญูฯ (2)", "kW": 250.00, "Zone": "ศูนย์กลาง"},
+    {"อาคาร": "สำนักงานอธิการบดี (1)", "kW": 220.00, "Zone": "ศูนย์กลาง"},
+    {"อาคาร": "Sports Complex", "kW": 200.00, "Zone": "ศูนย์กลาง"}
 ])
 
-# 3. Sidebar: Control & Secondary Info
-with st.sidebar:
-    st.image("https://www.rmuti.ac.th/main/wp-content/uploads/2019/09/Logo-RMUTI-Standard.png", width=100)
-    st.title("AETHERA Control")
-    st.markdown("---")
-    st.subheader("🤝 Live Market P2P")
-    st.info("⚡ Admin → Hall (2)\n12.5 kWh | 3.8฿")
-    st.info("⚡ Bus (32) → Lib (4)\n25.0 kWh | 4.0฿")
-    st.markdown("---")
-    st.write("📅 Last Sync: Today 13:00")
+# 3. ส่วนหัวพร้อมโลโก้มหาวิทยาลัย
+with st.container():
+    col_logo, col_title = st.columns([1, 5])
+    with col_logo:
+        # พยายามโหลดไฟล์ rmut.png ถ้าไม่มีให้ข้ามเพื่อกัน Error
+        try:
+            st.image("rmut.png", width=120)
+        except:
+            st.write("🏛️ RMUTI")
+    with col_title:
+        st.markdown("<h1 class='main-title'>RMUTI AETHERA : Smart Grid Management System</h1>", unsafe_allow_html=True)
 
-# 4. Main Dashboard Header
+# 4. KPI Metrics (ระบุหน่วยชัดเจน)
 m1, m2, m3, m4 = st.columns(4)
-with m1: st.metric("Live Solar Power", "2,854.56 kW", "↑ 12%")
-with m2: st.metric("Total Yield", "54.473 MW", "Cumulative")
-with m3: st.metric("Grid Reliance", "15.2 %", "-2.4%", delta_color="inverse")
-with m4: st.metric("Daily Savings", "฿ 1,420.50", "P2P Profit")
+m1.metric("Real-Time Generation", "2,854.56 kW", "☀️ Solar")
+m2.metric("Accumulated Yield", "54.473 MW", "Cumulative")
+m3.metric("System Capacity", "2,854.56 kW", "Peak")
+m4.metric("P2P Volume", "80.3 kWh", "Today")
 
 st.markdown("---")
 
-# 5. Grid Layout: 2 Rows, 2 Columns
-row1_left, row1_right = st.columns([2, 1])
+# 5. Main Content: Flow & ESG & Details
+left_col, mid_col, right_col = st.columns([1.5, 1, 1])
 
-with row1_left:
-    st.markdown("### ⚡ Smart Energy Flow Control (Real-time)")
-    # Sankey ที่มีมิติและระบุหน่วยชัดเจน
-    fig_flow = go.Figure(data=[go.Sankey(
-        node = dict(pad=30, thickness=25, 
-                   label=["Solar PV (kW)", "PEA Grid (kW)", "RMUTI Smart Load (kW)"],
-                   color=["#fbbf24", "#ef4444", "#1e3a8a"]),
-        link = dict(source=[0, 1], target=[2, 2], value=[2854.56, 500],
-                   color=["rgba(251, 191, 36, 0.4)", "rgba(239, 68, 68, 0.3)"])
-    )])
-    fig_flow.update_layout(height=380, margin=dict(l=0, r=0, t=0, b=0))
+with left_col:
+    st.subheader("⚡ Energy Flow Visualization (kW)")
+    # กราฟแท่งเปรียบเทียบแหล่งพลังงาน (เสถียรกว่า Sankey และดูง่าย)
+    fig_flow = go.Figure(data=[
+        go.Bar(name='Solar Energy', x=['Load Balance'], y=[2854.56], marker_color='#f59e0b', text="2,854 kW", textposition='auto'),
+        go.Bar(name='PEA Grid', x=['Load Balance'], y=[500], marker_color='#ef4444', text="500 kW", textposition='auto')
+    ])
+    fig_flow.update_layout(barmode='stack', height=400, margin=dict(t=0, b=0), legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
     st.plotly_chart(fig_flow, use_container_width=True)
+    st.caption("Mode: Zero Export (No power feedback to grid)")
 
-with row1_right:
-    st.markdown("### 🌿 ESG Impact")
-    # จัดวางรูปภาพ CO2, Coal, Tree ให้ดูสมดุล
-    e_col1, e_col2 = st.columns(2)
-    with e_col1:
+with mid_col:
+    st.subheader("🌿 Environment ESG")
+    # ใช้รูปที่คุณนุอัปโหลด (CO2, Coal, Tree)
+    try:
         st.image("CO2.png", width=100)
-        st.write("**27.24 t** CO2 Saved")
-    with e_col2:
+        st.write("**27.24 Tons** CO2 Saved")
         st.image("Coal.png", width=100)
-        st.write("**21.79 t** Coal Saved")
-    st.image("Tree.png", width=100)
-    st.write("**680** Trees Equivalent")
+        st.write("**21.79 Tons** Coal Saved")
+        st.image("Tree.png", width=100)
+        st.write("**680 Trees** Planted")
+    except:
+        st.info("💡 กรุณาตรวจสอบชื่อไฟล์รูปภาพสิ่งแวดล้อม")
 
+with right_col:
+    st.subheader("📊 Station Details (kW)")
+    st.dataframe(df_stations.sort_values("kW", ascending=False), hide_index=True, use_container_width=True, height=450)
+
+# 6. P2P Transaction Log (ด้านล่างสุด)
 st.markdown("---")
-
-row2_left, row2_right = st.columns([1, 1])
-
-with row2_left:
-    st.markdown("### 📈 Power Performance Trend")
-    # กราฟ Area แบบไล่เฉดสี
-    df_trend = pd.DataFrame({"Time": range(24), "kW": np.random.normal(2000, 50, 24)})
-    fig_line = px.area(df_trend, x="Time", y="kW", color_discrete_sequence=['#fbbf24'])
-    fig_line.update_layout(height=300, yaxis_title="Power (kW)")
-    st.plotly_chart(fig_line, use_container_width=True)
-
-with row2_right:
-    st.markdown("### 📊 Top Station Breakdown")
-    # ตารางที่ปรับแต่งให้ดูแพง
-    st.table(df_stations.head(6))
+st.subheader("🤝 Live P2P Trading History")
+c1, c2 = st.columns(2)
+with c1: st.success("✅ Admin → Hall (อาคาร 2) : 12.5 kWh | 3.8฿")
+with c2: st.success("✅ Business (32) → Lib (4) : 25.0 kWh | 4.0฿")
