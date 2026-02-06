@@ -2,12 +2,12 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import numpy as np
-from datetime import datetime, timedelta
+from datetime import datetime, time
 
 # 1. ตั้งค่าหน้าจอ
 st.set_page_config(page_title="RMUTI AETHERA Executive", layout="wide")
 
-# --- CSS แบบปลอดภัย (Stable Version) ---
+# --- CSS แบบเสถียร ---
 st.markdown("""
     <style>
     .main { background-color: #f8f9fa; }
@@ -42,34 +42,28 @@ df_nodes = pd.DataFrame([
     {"อาคาร": "โรงอาหารหนองระเวียง", "kW": 170.00, "Zone": "หนองระเวียง", "Lat": 14.9420, "Lon": 102.2135}
 ])
 
-# --- ค่าสำหรับ Metric Cards ---
-realtime_sum = df_nodes['kW'].sum()  # ข้อ 1: รวมผลิตจริง
-total_accumulated = 54.473          # ข้อ 2: ผลิตสะสมรวม (MW)
-total_capacity_fixed = 2854.56      # ข้อ 3: ติดตั้งรวม (MW)
+# --- ค่าคงที่ตามโจทย์ ---
+total_capacity_fixed = 2854.56  # ข้อ 3: MW
+total_accumulated = 54.473      # ข้อ 2: MW
+realtime_sum = df_nodes['kW'].sum() # ข้อ 1: รวม kW ปัจจุบัน
 
-# --- 3. ปรับปรุงกราฟให้สมจริง (07:00 - 17:30) ---
-def get_solar_value(hour, peak):
-    # เริ่ม 07:00 สิ้นสุด 17:30 (ประมาณ 17.5)
-    start_h = 7.0
-    end_h = 17.5
-    if start_h <= hour <= end_h:
-        # ใช้ Sine Wave จำลองโค้งแดดในช่วงเวลาที่กำหนด
-        normalized_time = (hour - start_h) / (end_h - start_h)
-        val = np.sin(np.pi * normalized_time) * peak
-        return max(0, val * np.random.uniform(0.95, 1.05)) # ใส่ความสมจริงของแสงแดด
-    return 0.0
-
-# สร้างข้อมูลย้อนหลัง 24 ชม. ทุกๆ 30 นาทีเพื่อให้กราฟละเอียดขึ้น
-times = []
+# --- 3. สร้างข้อมูลกราฟ (07:00 - 17:30) ---
+hours = np.linspace(0, 23.5, 48) # ทุกๆ 30 นาที
 powers = []
-now = datetime.now()
-for i in range(48, -1, -1):
-    t = now - timedelta(minutes=30*i)
-    h_float = t.hour + (t.minute / 60.0)
-    times.append(t.strftime("%H:%M"))
-    powers.append(get_solar_value(h_float, realtime_sum))
 
-df_trend = pd.DataFrame({"Time": times, "Power (kW)": powers})
+for h in hours:
+    if 7.0 <= h <= 17.5:
+        # จำลองโค้ง Solar พีคตอนเที่ยง
+        normalized = (h - 7.0) / (17.5 - 7.0)
+        val = np.sin(np.pi * normalized) * realtime_sum
+        powers.append(max(0, val * np.random.uniform(0.98, 1.02)))
+    else:
+        powers.append(0)
+
+df_trend = pd.DataFrame({
+    "Time": [f"{int(h):02d}:{int((h%1)*60):02d}" for h in hours],
+    "Power (kW)": powers
+})
 
 # --- UI Layout ---
 st.markdown("<h2 style='text-align: center; color: #004a7c;'>🏛️ RMUTI Smart Grid Management</h2>", unsafe_allow_html=True)
@@ -86,16 +80,15 @@ with c3:
 
 st.write("---")
 
-# Main Content
 col_left, col_right = st.columns([1.7, 1])
 
 with col_left:
-    st.markdown(f"### 📈 Power Generation Trend (07:00 - 17:30 Active)")
+    st.markdown("### 📈 Power Generation Trend (07:00 - 17:30)")
     fig_line = px.area(df_trend, x="Time", y="Power (kW)", color_discrete_sequence=['#FF9100'])
     fig_line.update_layout(
         height=320, 
         margin=dict(l=0, r=0, t=10, b=0),
-        xaxis=dict(tickangle=45, nbins=24) # ปรับให้แกนเวลาอ่านง่ายขึ้น
+        xaxis=dict(tickmode='linear', dtick=4) # แสดง label ทุกๆ 2 ชั่วโมงให้อ่านง่าย
     )
     st.plotly_chart(fig_line, use_container_width=True)
 
@@ -116,4 +109,4 @@ with col_right:
     st.dataframe(df_nodes[["อาคาร", "kW", "Zone"]].sort_values("kW", ascending=False), 
                  hide_index=True, use_container_width=True, height=520)
 
-st.caption("RMUTI Smart Grid Platform | Optimized Solar Curve v3.0")
+st.caption("RMUTI Smart Grid Platform | Fixed Error & Optimized Curve")
