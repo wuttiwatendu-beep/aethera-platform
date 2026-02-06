@@ -1,40 +1,60 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import plotly.graph_objects as go
+import plotly.express as px
 
-# 1. ตั้งค่าหน้าจอ
-st.set_page_config(page_title="RMUTI Energy Network", layout="wide")
+# 1. ตั้งค่าหน้าจอ (เสถียรที่สุดคือใช้ Layout มาตรฐาน)
+st.set_page_config(page_title="RMUTI Smart Grid", layout="wide")
 
-# CSS สำหรับปรับแต่งโทนสีสว่างและ Card สไตล์พรีเมียม
+# CSS สำหรับโทนสีสว่าง และหัวข้อสีส้ม RMUTI
 st.markdown("""
     <style>
-    .main { background-color: #f8fafc; color: #1e293b; }
+    .main { background-color: #ffffff; }
     .stMetric { 
-        background-color: #ffffff; 
-        padding: 20px; 
-        border-radius: 15px; 
-        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        background-color: #f8fafc; 
+        padding: 15px; 
+        border-radius: 10px; 
         border: 1px solid #e2e8f0;
     }
-    div[data-testid="stMetricValue"] { color: #E85D04; font-weight: bold; }
-    .stTabs [data-baseweb="tab-list"] { gap: 10px; }
-    .stTabs [data-baseweb="tab"] {
-        background-color: #f1f5f9;
-        border-radius: 5px;
-        padding: 10px 20px;
-    }
+    h1, h2, h3 { color: #E85D04 !important; }
     </style>
     """, unsafe_allow_html=True)
 
-# 2. ข้อมูลอาคาร (Master Data ตามที่คุณนุระบุ)
+# 2. เตรียมข้อมูล (ยึดตาม 354.56 kW และ 2.5 MW)
 data = [
-    {"Bldg": "อาคาร G (หนองระเวียง)", "kW": 354.56, "Lat": 14.9435, "Lon": 102.2140, "Type": "Source"},
-    {"Bldg": "อาคาร 35 (ทะเบียน)", "kW": 485.76, "Lat": 14.9922, "Lon": 102.1162, "Type": "Source"},
-    {"Bldg": "อาคาร 32 (บริหาร)", "kW": 400.00, "Lat": 14.9925, "Lon": 102.1155, "Type": "P2P"},
-    {"Bldg": "อาคาร 4 (วิทยบริการ)", "kW": 280.00, "Lat": 14.9910, "Lon": 102.1165, "Type": "P2P"},
-    {"Bldg": "อาคาร 2 (หอประชุม)", "kW": 250.00, "Lat": 14.9905, "Lon": 102.1158, "Type": "P2P"},
-    {"Bldg": "อาคาร 1 (อธิการบดี)", "kW": 220.00, "Lat": 14.9915, "Lon": 102.1160, "Type": "P2P"},
-    {"Bldg": "Sports Complex", "kW": 150.00, "Lat": 14.9940, "Lon": 102.1140, "Type": "P2P"},
-    {"Bldg": "อาคาร A", "kW": 314.24, "Lat": 14.9935, "Lon": 102.1168, "Type": "P2P"},
-    {"Bldg": "อาคาร B", "kW": 300.00, "Lat": 14.9900, "Lon": 102.1170, "Type
+    {"อาคาร": "G กลุ่มวิชาชีพเครื่องกล (หนองระเวียง)", "kW": 354.56, "Zone": "หนองระเวียง", "Lat": 14.9435, "Lon": 102.2140},
+    {"อาคาร": "สำนักส่งเสริมวิชาการฯ (อาคาร 35)", "kW": 485.76, "Zone": "ศูนย์กลาง", "Lat": 14.9922, "Lon": 102.1162},
+    {"อาคาร": "คณะบริหารธุรกิจ (อาคาร 32)", "kW": 400.00, "Zone": "ศูนย์กลาง", "Lat": 14.9925, "Lon": 102.1155},
+    {"อาคาร": "อาคารสำนักวิทยบริการฯ (อาคาร 4)", "kW": 280.00, "Zone": "ศูนย์กลาง", "Lat": 14.9910, "Lon": 102.1165},
+    {"อาคาร": "หอประชุมวทัญญูฯ (อาคาร 2)", "kW": 250.00, "Zone": "ศูนย์กลาง", "Lat": 14.9905, "Lon": 102.1158},
+    {"อาคาร": "สำนักงานอธิการบดี (อาคาร 1)", "kW": 220.00, "Zone": "ศูนย์กลาง", "Lat": 14.9915, "Lon": 102.1160},
+    {"อาคาร": "Sports Complex (Gym)", "kW": 150.00, "Zone": "ศูนย์กลาง", "Lat": 14.9940, "Lon": 102.1140},
+    {"อาคาร": "อาคารเรียนรวม (อาคาร 7)", "kW": 100.00, "Zone": "ศูนย์กลาง", "Lat": 14.9930, "Lon": 102.1145},
+    {"อาคาร": "อาคาร A (เพิ่มใหม่)", "kW": 314.24, "Zone": "ศูนย์กลาง", "Lat": 14.9935, "Lon": 102.1168},
+    {"อาคาร": "อาคาร B (เพิ่มใหม่)", "kW": 300.00, "Zone": "ศูนย์กลาง", "Lat": 14.9900, "Lon": 102.1170},
+]
+df = pd.DataFrame(data)
+
+# --- ส่วนหัวโปรแกรม ---
+st.title("🏫 RMUTI AETHERA: Smart Energy Dashboard")
+st.write("ระบบบริหารจัดการพลังงานแสงอาทิตย์ (Phase 1: ติดตั้ง มีนาคม 2569)")
+
+# --- แถบตัวเลขสรุป (Executive Metrics) ---
+m1, m2, m3 = st.columns(3)
+m1.metric("กำลังผลิตรวมศูนย์กลาง", "2.50 MW", "9 Nodes")
+m2.metric("กำลังผลิตหนองระเวียง", "354.56 kW", "อาคาร G")
+m3.metric("เป้าหมายการประหยัด", "4.2 ล้านบาท/ปี", "ROI 4.5 ปี")
+
+st.divider()
+
+# --- ส่วนแสดงผลหลัก (Split Screen) ---
+col_map, col_table = st.columns([1.5, 1])
+
+with col_map:
+    st.subheader("📍 พิกัดโครงข่ายพลังงาน 10 สถานี")
+    # ใช้ px.scatter_mapbox ที่เสถียรที่สุดในโทนสีสว่าง
+    fig = px.scatter_mapbox(df, lat="Lat", lon="Lon", color="Zone", size="kW",
+                            hover_name="อาคาร", zoom=11, height=500,
+                            color_discrete_map={"หนองระเวียง": "#00A8E8", "ศูนย์กลาง": "#E85D04"},
+                            mapbox_style="carto-positron")
+    fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
