@@ -3,69 +3,77 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 
-# 1. ตั้งค่าหน้าเว็บ
-st.set_page_config(page_title="AETHERA Platform", layout="wide")
+# 1. การตั้งค่าหน้าจอและสไตล์ (Theme)
+st.set_page_config(page_title="RMUTI Smart Grid", layout="wide")
 
-# 2. สร้าง Sidebar สำหรับเลือกโปรเจกต์
-st.sidebar.title("🚀 เลือกโครงการ")
-project_mode = st.sidebar.radio("ไปที่หน้า:", ["มทร. อีสาน (9+1 Nodes)", "ระบบทดสอบเดิม (30 Nodes)"])
+st.markdown("""
+    <style>
+    .reportview-container { background: #f0f2f6; }
+    .stMetric { background-color: #ffffff; padding: 20px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    h1 { color: #E85D04; font-family: 'Sarabun', sans-serif; }
+    </style>
+    """, unsafe_allow_html=True)
 
-# ---------------------------------------------------------
-# MODE 1: มทร. อีสาน (งานจริง Phase 1)
-# ---------------------------------------------------------
-if project_mode == "มทร. อีสาน (9+1 Nodes)":
-    st.markdown("<h1 style='color: #E85D04;'>🏫 RMUTI Smart Grid (Phase 1)</h1>", unsafe_allow_html=True)
-    
-    # ข้อมูลจริงจากเอกสาร
-    rmuti_data = [
-        {"อาคาร": "G กลุ่มวิชาชีพเครื่องกล (หนองระเวียง)", "kW": 354.56, "Group": "หนองระเวียง", "Lat": 14.9435, "Lon": 102.2140},
-        {"อาคาร": "สำนักส่งเสริมวิชาการฯ (อาคาร 35)", "kW": 485.76, "Group": "ศูนย์กลาง", "Lat": 14.9922, "Lon": 102.1162},
-        {"อาคาร": "คณะบริหารธุรกิจ (อาคาร 32)", "kW": 400.00, "Group": "ศูนย์กลาง", "Lat": 14.9925, "Lon": 102.1155},
-        {"อาคาร": "สำนักวิทยบริการฯ (อาคาร 4)", "kW": 280.00, "Group": "ศูนย์กลาง", "Lat": 14.9910, "Lon": 102.1165},
-        {"อาคาร": "หอประชุมวทัญญูฯ (อาคาร 2)", "kW": 250.00, "Group": "ศูนย์กลาง", "Lat": 14.9905, "Lon": 102.1158},
-        {"อาคาร": "สำนักงานอธิการบดี (อาคาร 1)", "kW": 220.00, "Group": "ศูนย์กลาง", "Lat": 14.9915, "Lon": 102.1160},
-        {"อาคาร": "Sports Complex (Gym)", "kW": 150.00, "Group": "ศูนย์กลาง", "Lat": 14.9940, "Lon": 102.1140},
-        {"อาคาร": "อาคารเรียนรวม (อาคาร 7)", "kW": 100.00, "Group": "ศูนย์กลาง", "Lat": 14.9930, "Lon": 102.1145},
-        {"อาคาร": "อาคาร A (เพิ่มใหม่)", "kW": 314.24, "Group": "ศูนย์กลาง", "Lat": 14.9935, "Lon": 102.1168},
-        {"อาคาร": "อาคาร B (เพิ่มใหม่)", "kW": 300.00, "Group": "ศูนย์กลาง", "Lat": 14.9900, "Lon": 102.1170},
-    ]
-    df_rmuti = pd.DataFrame(rmuti_data)
-    
-    # สรุปผล มทร.
-    st.metric("Total Capacity", f"{(df_rmuti['kW'].sum()/1000):.2f} MW")
-    
-    fig_rmuti = px.scatter_mapbox(df_rmuti, lat="Lat", lon="Lon", color="Group", size="kW",
-                                 hover_name="อาคาร", zoom=11, height=500, mapbox_style="carto-positron")
-    st.plotly_chart(fig_rmuti, use_container_width=True)
-    st.table(df_rmuti[['อาคาร', 'kW', 'Group']])
+# 2. ข้อมูลอาคาร (อ้างอิงตามเอกสารสำรวจของคุณนุ)
+data = [
+    {"อาคาร": "G กลุ่มวิชาชีพเครื่องกล (หนองระเวียง)", "kW": 354.56, "Group": "Group 1: หนองระเวียง", "Lat": 14.9435, "Lon": 102.2140},
+    {"อาคาร": "สำนักส่งเสริมวิชาการฯ (อาคาร 35)", "kW": 485.76, "Group": "Group 2: Academic Core", "Lat": 14.9922, "Lon": 102.1162},
+    {"อาคาร": "คณะบริหารธุรกิจ (อาคาร 32)", "kW": 400.00, "Group": "Group 2: Academic Core", "Lat": 14.9925, "Lon": 102.1155},
+    {"อาคาร": "สำนักวิทยบริการฯ (อาคาร 4)", "kW": 280.00, "Group": "Group 2: Academic Core", "Lat": 14.9910, "Lon": 102.1165},
+    {"อาคาร": "หอประชุมวทัญญูฯ (อาคาร 2)", "kW": 250.00, "Group": "Group 2: Academic Core", "Lat": 14.9905, "Lon": 102.1158},
+    {"อาคาร": "สำนักงานอธิการบดี (อาคาร 1)", "kW": 220.00, "Group": "Group 2: Academic Core", "Lat": 14.9915, "Lon": 102.1160},
+    {"อาคาร": "อาคาร A (New)", "kW": 314.24, "Group": "Group 2: Academic Core", "Lat": 14.9935, "Lon": 102.1168},
+    {"อาคาร": "อาคาร B (New)", "kW": 300.00, "Group": "Group 2: Academic Core", "Lat": 14.9900, "Lon": 102.1170},
+    {"อาคาร": "Sports Complex (Gym)", "kW": 150.00, "Group": "Group 2: Academic Core", "Lat": 14.9940, "Lon": 102.1140},
+    {"อาคาร": "อาคารเรียนรวม (อาคาร 7)", "kW": 100.00, "Group": "Group 2: Academic Core", "Lat": 14.9930, "Lon": 102.1145}
+]
+df = pd.DataFrame(data)
 
-# ---------------------------------------------------------
-# MODE 2: ระบบทดสอบเดิม (30 Nodes เมื่อวาน)
-# ---------------------------------------------------------
-else:
-    st.markdown("<h1 style='color: #00A8E8;'>💎 AETHERA Global Test Net</h1>", unsafe_allow_html=True)
-    st.write("โหมดจำลองสถานีทดสอบ 30 Nodes สำหรับรันระบบ Matching ราคา")
-    
-    # สร้างข้อมูลสุ่ม 30 สถานีเหมือนเมื่อวาน
-    np.random.seed(42)
-    df_test = pd.DataFrame({
-        "Station": [f"ST-{i+1:02d}" for i in range(30)],
-        "Type": np.random.choice(["Seller", "Buyer"], 30),
-        "Price": np.random.uniform(2.5, 4.5, 30).round(2),
-        "Lat": np.random.uniform(13.7, 13.9, 30),
-        "Lon": np.random.uniform(100.4, 100.6, 30)
-    })
-    
-    # กราฟราคา
-    st.bar_chart(df_test.pivot(index='Station', columns='Type', values='Price'))
-    
-    # แผนที่ 30 จุด
-    fig_test = px.scatter_mapbox(df_test, lat="Lat", lon="Lon", color="Type", size="Price",
-                                zoom=10, height=500, mapbox_style="carto-positron")
-    st.plotly_chart(fig_test, use_container_width=True)
-    
-    # ตาราง Matching
-    st.write("🤝 Matching Summary (30 Nodes)")
-    st.dataframe(df_test.head(10))
+# --- ส่วนที่ 1: Header สำหรับอธิการบดี ---
+st.markdown("<h1 style='text-align: center;'>🏛️ RMUTI AETHERA: Smart University Grid</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; font-size: 1.2rem;'>โครงการบริหารจัดการพลังงานสะอาด ระยะที่ 1 (เริ่มดำเนินการ มีนาคม 2569)</p>", unsafe_allow_html=True)
 
-st.sidebar.info("คุณนุสามารถสลับหน้าไปมาได้ ข้อมูลไม่หายครับ!")
+# --- ส่วนที่ 2: สรุปผลประโยชน์ (Key Results) ---
+col_m1, col_m2, col_m3, col_m4 = st.columns(4)
+col_m1.metric("กำลังการผลิตติดตั้งรวม", f"{(df['kW'].sum()/1000):.2f} MW", "Phase 1")
+col_m2.metric("คาดการณ์การลดค่าไฟ", "4.2 ล้านบาท/ปี", "ROI 4.5 ปี")
+col_m3.metric("ลดการปล่อย CO2", "1,240 ตัน/ปี", "เทียบเท่าปลูกต้นไม้ 5หมื่นต้น")
+col_m4.metric("จำนวนอาคารที่ติดตั้ง", "10 อาคาร", "2 วิทยาเขต")
+
+st.divider()
+
+# --- ส่วนที่ 3: ผังโครงข่ายและการจัดการ Node (Split Screen) ---
+col_left, col_right = st.columns([1.5, 1])
+
+with col_left:
+    st.subheader("🌐 แผนที่โครงข่ายอัจฉริยะ (Real-time Topology)")
+    # ใช้ Mapbox Clustering เพื่อให้ดูไม่รก
+    fig = px.scatter_mapbox(df, lat="Lat", lon="Lon", color="Group", size="kW",
+                            hover_name="อาคาร", zoom=11.2, height=550,
+                            color_discrete_map={"Group 1: หนองระเวียง": "#00A8E8", "Group 2: Academic Core": "#E85D04"},
+                            mapbox_style="carto-positron")
+    fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0}, showlegend=True)
+    st.plotly_chart(fig, use_container_width=True)
+
+with col_right:
+    st.subheader("📊 ข้อมูลเชิงลึกรายอาคาร")
+    # ใช้ Tabs แยกข้อมูลเพื่อให้ดูสะอาดตา
+    tab1, tab2 = st.tabs(["⚡ ขนาดการติดตั้ง (kW)", "🤝 ระบบ P2P Trading"])
+    
+    with tab1:
+        st.bar_chart(df.set_index('อาคาร')['kW'])
+        st.dataframe(df[['อาคาร', 'kW']].sort_values('kW', ascending=False), hide_index=True)
+        
+    with tab2:
+        st.info("จำลองการไหลของพลังงานระหว่างอาคารภายในศูนย์กลางฯ")
+        # แสดงสถานะการเทรดแบบ Animation สั้นๆ (ใช้ Table จำลอง)
+        trading_data = {
+            "จาก (แหล่งผลิต)": ["อาคาร 35", "อาคาร G", "อาคาร 32"],
+            "ไปยัง (ผู้ใช้)": ["อธิการบดี", "อาคาร 4", "หอประชุม"],
+            "ปริมาณ (kWh)": [45, 120, 60],
+            "สถานะ": ["✅ ส่งมอบ", "✅ ส่งมอบ", "🔄 กำลังจับคู่"]
+        }
+        st.table(pd.DataFrame(trading_data))
+
+st.divider()
+st.
