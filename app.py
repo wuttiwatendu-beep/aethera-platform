@@ -3,121 +3,108 @@ import pandas as pd
 import plotly.graph_objects as go
 import numpy as np
 
-# 1. Page Configuration & Custom UI Scaling
+# 1. Page Configuration
 st.set_page_config(page_title="RMUTI AETHERA PLATFORM", layout="wide")
 
 st.markdown("""
     <style>
-    /* ขยายขนาด Metric หลักให้ใหญ่พิเศษ */
+    /* ขยายตัวเลขหลักให้ดูแน่น */
     [data-testid="stMetricValue"] {
-        font-size: 4.2rem !important;
+        font-size: 3.8rem !important;
         font-weight: 800 !important;
         color: #1e3a8a;
-        line-height: 1;
     }
-    [data-testid="stMetricLabel"] { font-size: 1.5rem !important; font-weight: 600 !important; }
-    
-    /* ตกแต่ง Header Area */
-    .header-container {
-        display: flex;
-        align-items: center;
-        background-color: white;
-        padding: 20px;
-        border-radius: 15px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-        margin-bottom: 30px;
-    }
-    
-    /* ขยายฟอนต์ ESG ด้านบน */
-    .esg-top-text {
-        font-size: 1.4rem;
-        font-weight: 700;
-        text-align: center;
-        margin-top: 5px;
-    }
-    
-    /* ส่วนหัวข้อ Section */
-    .section-title {
-        font-size: 2.2rem !important;
+    /* ปรับแต่งหัวข้อ Section ให้เด่น */
+    .section-header {
+        font-size: 2rem !important;
         font-weight: 700;
         color: #1e3a8a;
         border-left: 10px solid #f59e0b;
-        padding-left: 20px;
-        margin: 20px 0;
+        padding-left: 15px;
+        margin-top: 10px;
+    }
+    /* ตกแต่งข้อความ ESG */
+    .esg-label {
+        font-size: 1.2rem;
+        font-weight: 700;
+        text-align: center;
+        color: #374151;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# 2. Top Header: Logo + ESG Horizontal (ย้าย ESG มาไว้ด้านบนตามสั่ง)
-head_col1, head_col2, head_col3, head_col4, head_col5 = st.columns([1.5, 1, 1, 1, 1.5])
-
-with head_col1:
-    try: st.image("rmut.png", width=250) # เพิ่มขนาด Logo ให้ใหญ่สมดุล
+# 2. Top Header: Huge Logo & Title
+# เน้น Logo มหาวิทยาลัยให้ใหญ่ตามสั่ง
+head_l, head_r = st.columns([1, 3.5])
+with head_l:
+    try: st.image("rmut.png", width=280) 
     except: st.title("🏛️ RMUTI")
-
-# ข้อมูล ESG แนวนอน
-with head_col2:
-    st.image("CO2.png", width=100)
-    st.markdown("<div class='esg-top-text'>27.24 T<br><small>CO2 Saved</small></div>", unsafe_allow_html=True)
-with head_col3:
-    st.image("Coal.png", width=100) # ข้อมูล Coal กลับมาแสดงผลด้านบน
-    st.markdown("<div class='esg-top-text'>21.79 T<br><small>Coal Saved</small></div>", unsafe_allow_html=True)
-with head_col4:
-    st.image("Tree.png", width=100)
-    st.markdown("<div class='esg-top-text'>680<br><small>Trees Planted</small></div>", unsafe_allow_html=True)
-
-with head_col5:
-    st.markdown("<h1 style='text-align:right; color:#1e3a8a; font-size:2.5rem;'>AETHERA<br>COMMAND</h1>", unsafe_allow_html=True)
+with head_r:
+    st.markdown("<h1 style='font-size:4rem; color:#1e3a8a; margin-top:40px;'>AETHERA COMMAND CENTER</h1>", unsafe_allow_html=True)
 
 st.divider()
 
-# 3. Key Performance Metrics (ขยายขนาดให้สมดุล)
+# 3. Main Metrics (แถวที่ 2)
 m1, m2, m3, m4 = st.columns(4)
 m1.metric("Real-Time (kW)", "2,854.56")
 m2.metric("Total Yield (MW)", "54.473")
 m3.metric("Peak Capacity (kW)", "2,854.56")
 m4.metric("P2P Volume (kWh)", "80.3")
 
-st.divider()
+st.write("") # เพิ่มระยะห่างเล็กน้อย
 
-# 4. Main Content: Charts & Tables (จัดให้แน่นเต็มพื้นที่)
-col_left, col_right = st.columns([1, 1])
+# 4. ESG Section (ย้ายลงมาวางแนวนอนเหนือระดับกราฟ)
+# ขยายขนาดรูปไอคอน 3 รูปให้ใหญ่และสมดุล
+st.markdown("---")
+e_space, e1, e2, e3, e_title = st.columns([1, 1, 1, 1, 1.5])
 
-with col_left:
-    st.markdown("<div class='section-title'>⚡ Today Power Mix (kW)</div>", unsafe_allow_html=True)
+with e1:
+    st.image("CO2.png", width=130) # ขยายขนาดรูป
+    st.markdown("<div class='esg-label'>27.24 T<br>CO2 Saved</div>", unsafe_allow_html=True)
+with e2:
+    st.image("Coal.png", width=130) # ข้อมูล Coal กลับมาเด่นชัด
+    st.markdown("<div class='esg-label'>21.79 T<br>Coal Saved</div>", unsafe_allow_html=True)
+with e3:
+    st.image("Tree.png", width=130)
+    st.markdown("<div class='esg-label'>680 Trees<br>Planted</div>", unsafe_allow_html=True)
+with e_title:
+    st.markdown("<h2 style='text-align:right; color:#059669; margin-top:20px;'>🌿 Environment<br>Benefits</h2>", unsafe_allow_html=True)
+
+# 5. Charts Area (วางต่อจาก ESG ทันทีเพื่อให้ดูไม่โล่ง)
+col_l, col_r = st.columns(2)
+
+with col_l:
+    st.markdown("<div class='section-header'>⚡ Today Power Mix (kW)</div>", unsafe_allow_html=True)
     fig_mix = go.Figure()
-    fig_mix.add_trace(go.Scatter(y=np.random.normal(45, 5, 24), name="Load", line_color='red', fill='tozeroy'))
-    fig_mix.add_trace(go.Scatter(y=np.random.normal(20, 3, 24), name="Solar", line_color='blue', fill='tozeroy'))
-    fig_mix.update_layout(height=450, margin=dict(l=0,r=0,t=0,b=0), font=dict(size=14))
+    fig_mix.add_trace(go.Scatter(y=np.random.normal(45, 5, 24), name="Consumption", line_color='#ef4444', fill='tozeroy'))
+    fig_mix.add_trace(go.Scatter(y=np.random.normal(20, 3, 24), name="Solar Generation", line_color='#3b82f6', fill='tozeroy'))
+    fig_mix.update_layout(height=400, margin=dict(l=0,r=0,t=10,b=0))
     st.plotly_chart(fig_mix, use_container_width=True)
 
-with col_right:
-    st.markdown("<div class='section-title'>📊 Monthly Generation (MW)</div>", unsafe_allow_html=True)
-    # กราฟแท่งสีม่วงตามตัวอย่างที่ชอบ
-    days = [f"{i+1:02d}" for i in range(28)]
-    yield_vals = [80, 235, 255, 270, 245, 165] + [0]*22
-    fig_monthly = go.Figure(go.Bar(x=days, y=yield_vals, marker_color='#a855f7', textposition='outside'))
-    fig_monthly.update_layout(height=450, margin=dict(l=0,r=0,t=0,b=0), font=dict(size=14))
-    st.plotly_chart(fig_monthly, use_container_width=True)
+with col_r:
+    st.markdown("<div class='section-header'>📊 Monthly Generation (MW)</div>", unsafe_allow_html=True)
+    # กราฟแท่งสีม่วงเลียนแบบ Revenue ที่คุณนุชอบ
+    fig_bar = go.Figure(go.Bar(
+        x=[f"{i+1:02d}" for i in range(28)], 
+        y=[80, 235, 255, 270, 245, 165] + [0]*22, 
+        marker_color='#a855f7'
+    ))
+    fig_bar.update_layout(height=400, margin=dict(l=0,r=0,t=10,b=0))
+    st.plotly_chart(fig_bar, use_container_width=True)
 
+# 6. Footer: Station & P2P
 st.divider()
-
-# 5. Bottom Details: Station & Trading
 bot_l, bot_r = st.columns([1.5, 1])
-
 with bot_l:
-    st.markdown("<div class='section-title'>📊 Station Breakdown</div>", unsafe_allow_html=True)
-    df_stations = pd.DataFrame([
+    st.markdown("<div class='section-header'>📊 Station Details</div>", unsafe_allow_html=True)
+    df = pd.DataFrame([
         {"อาคาร": "สำนักส่งเสริมวิชาการฯ (35)", "kW": 485.76, "Zone": "ศูนย์กลาง"},
         {"อาคาร": "คณะบริหารธุรกิจ (32)", "kW": 400.00, "Zone": "ศูนย์กลาง"},
         {"อาคาร": "G กลุ่มวิชาชีพเครื่องกล", "kW": 354.56, "Zone": "หนองระเวียง"},
-        {"อาคาร": "อาคารเรียนรวม 7", "kW": 314.24, "Zone": "ศูนย์กลาง"},
-        {"อาคาร": "สำนักวิทยบริการฯ (4)", "kW": 280.00, "Zone": "ศูนย์กลาง"}
+        {"อาคาร": "อาคารเรียนรวม 7", "kW": 314.24, "Zone": "ศูนย์กลาง"}
     ])
-    st.table(df_stations)
-
+    st.table(df)
 with bot_r:
-    st.markdown("<div class='section-title'>🤝 Live P2P Status</div>", unsafe_allow_html=True)
-    st.success("### ✅ Admin ⚡ Hall(2): 12.5 kWh | 3.8฿")
-    st.success("### ✅ Bus(32) ⚡ Lib(4): 25.0 kWh | 4.0฿")
-    st.info("### 🔵 Market: Active (3.8 - 4.0 ฿)")
+    st.markdown("<div class='section-header'>🤝 Live P2P Status</div>", unsafe_allow_html=True)
+    st.success("### ✅ Admin ⚡ Hall(2): 12.5 kWh")
+    st.success("### ✅ Business(32) ⚡ Lib(4): 25.0 kWh")
