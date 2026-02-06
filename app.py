@@ -1,103 +1,95 @@
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
+import numpy as np
+from datetime import datetime
 
-# 1. Setup & Custom CSS สำหรับขยายขนาดตัวอักษรทั่วทั้งหน้าจอ
-st.set_page_config(page_title="RMUTI AETHERA", layout="wide")
+# 1. Advanced Page Setup
+st.set_page_config(page_title="RMUTI AETHERA | Analytics", layout="wide")
 
 st.markdown("""
     <style>
-    /* ขยายขนาดตัวอักษรหลัก */
-    html, body, [class*="css"]  {
-        font-size: 1.1rem; 
-    }
-    /* ปรับแต่ง Metric ให้ตัวเลขใหญ่สะใจ */
-    [data-testid="stMetricValue"] {
-        font-size: 3.5rem !important;
-        font-weight: 800 !important;
-        color: #1e3a8a;
-    }
-    [data-testid="stMetricLabel"] {
-        font-size: 1.4rem !important;
-        font-weight: 600 !important;
-    }
-    /* ปรับแต่งหัวข้อ */
-    h1 { font-size: 3.5rem !important; }
-    h2 { font-size: 2.5rem !important; }
-    h3 { font-size: 1.8rem !important; }
-    
-    /* ปรับตารางให้ตัวหนังสือใหญ่ขึ้น */
-    .stDataFrame div[data-testid="stTable"] {
-        font-size: 1.2rem !font-important;
-    }
+    /* ขยายฟอนต์ให้ใหญ่สมดุลกับพื้นที่ */
+    html, body, [class*="css"] { font-size: 1.15rem; }
+    [data-testid="stMetricValue"] { font-size: 3.5rem !important; font-weight: 800 !important; color: #1e3a8a; }
+    [data-testid="stMetricLabel"] { font-size: 1.3rem !important; font-weight: 600 !important; }
+    h1 { font-size: 3.2rem !important; font-weight: 800; color: #1e3a8a; }
+    h3 { font-size: 1.8rem !important; font-weight: 700; border-left: 5px solid #f59e0b; padding-left: 15px; }
+    .stTable { font-size: 1.2rem !important; }
     </style>
     """, unsafe_allow_html=True)
 
-# 2. ข้อมูลอาคาร (เน้นอาคาร G 354.56 kW โซนหนองระเวียง)
+# 2. ข้อมูลอาคาร (เน้นอาคาร G หนองระเวียง 354.56 kW)
 df_stations = pd.DataFrame([
     {"อาคาร": "สำนักส่งเสริมวิชาการฯ (35)", "kW": 485.76, "Zone": "ศูนย์กลาง"},
     {"อาคาร": "คณะบริหารธุรกิจ (32)", "kW": 400.00, "Zone": "ศูนย์กลาง"},
     {"อาคาร": "G กลุ่มวิชาชีพเครื่องกล", "kW": 354.56, "Zone": "หนองระเวียง"},
     {"อาคาร": "อาคารเรียนรวม 7", "kW": 314.24, "Zone": "ศูนย์กลาง"},
     {"อาคาร": "สำนักวิทยบริการฯ (4)", "kW": 280.00, "Zone": "ศูนย์กลาง"},
-    {"อาคาร": "หอประชุมวทัญญูฯ (2)", "kW": 250.00, "Zone": "ศูนย์กลาง"},
+    {"อาคาร": "หอประชุมวทัญญูฯ (2)", "kW": 250.00, "Zone": "ศูนย์กลาง"}
 ])
 
-# 3. ส่วนหัว (Header) พร้อมโลโก้ขนาดใหญ่ขึ้น
-head_left, head_right = st.columns([1, 4])
-with head_left:
-    try: st.image("rmut.png", width=180) # ขยายโลโก้ให้เด่น
+# 3. Header Section (โลโก้ + ชื่อระบบ)
+head_l, head_r = st.columns([1, 4])
+with head_l:
+    try: st.image("rmut.png", width=180)
     except: st.title("🏛️")
-with head_right:
-    st.markdown("<h1 style='margin-top: 20px;'>RMUTI AETHERA PLATFORM</h1>", unsafe_allow_html=True)
-    st.markdown("### Smart Grid Management System")
+with head_r:
+    st.markdown("<h1 style='margin-bottom:0;'>RMUTI AETHERA PLATFORM</h1>", unsafe_allow_html=True)
+    st.markdown("### Smart Grid Management & Monthly Revenue")
 
-st.write("---")
+st.divider()
 
-# 4. Key Metrics (ตัวเลขใหญ่พิเศษ)
-m1, m2, m3, m4 = st.columns(4)
-m1.metric("Real-Time (kW)", "2,854.56")
-m2.metric("Total Yield (MW)", "54.473")
-m3.metric("Capacity (kW)", "2,854.56")
-m4.metric("P2P Volume (kWh)", "80.3")
+# 4. Main Analytics Layout (แบ่ง 2 ฝั่งเหมือนภาพตัวอย่าง)
+left_col, right_col = st.columns([1, 1])
 
-st.write("---")
+with left_col:
+    st.markdown("### ⚡ Today Energy Mix (kW)")
+    # กราฟแสดงการใช้ไฟฟ้าวันนี้เทียบระหว่าง Solar และ Grid
+    fig_today = go.Figure()
+    fig_today.add_trace(go.Scatter(x=list(range(24)), y=np.random.normal(40, 5, 24), name="Consumed", fill='tozeroy', line_color='#ef4444'))
+    fig_today.add_trace(go.Scatter(x=list(range(24)), y=np.random.normal(15, 3, 24), name="Solar Gen", fill='tozeroy', line_color='#3b82f6'))
+    fig_today.update_layout(height=400, margin=dict(l=0,r=0,t=20,b=0), legend=dict(orientation="h", y=1.1))
+    st.plotly_chart(fig_today, use_container_width=True)
+    
+    # สรุปตัวเลขวันนี้
+    c1, c2 = st.columns(2)
+    c1.metric("Today Solar", "2,854.56 kW", "Peak")
+    c2.metric("Grid Usage", "500.00 kW", "15.2%")
 
-# 5. Main Content Area
-col_graph, col_esg, col_table = st.columns([1.5, 0.8, 1.2])
-
-with col_graph:
-    st.markdown("### ⚡ Power Distribution (kW)")
-    fig = go.Figure(data=[
-        go.Bar(name='Solar', x=['Load'], y=[2854.56], marker_color='#f59e0b', text="2,854 kW", textfont=dict(size=18)),
-        go.Bar(name='Grid', x=['Load'], y=[500], marker_color='#ef4444', text="500 kW", textfont=dict(size=18))
+with right_col:
+    st.markdown("### 📊 Monthly Production (MW)")
+    # กราฟแท่งรายเดือนเลียนแบบ Revenue ในภาพตัวอย่าง
+    days = [f"{i+1:02d}" for i in range(28)]
+    # จำลองค่า MW รายวัน (01-06 มีข้อมูลเยอะ, 07-28 ยังไม่มี)
+    yield_data = [80, 235, 255, 270, 245, 165] + [0]*22 
+    
+    fig_monthly = go.Figure(data=[
+        go.Bar(x=days, y=yield_data, marker_color='#a855f7', text=[f"{v}" if v>0 else "" for v in yield_data], textposition='outside')
     ])
-    fig.update_layout(barmode='stack', height=500, font=dict(size=16)) # ขยายกราฟ
-    st.plotly_chart(fig, use_container_width=True)
+    fig_monthly.update_layout(height=400, margin=dict(l=0,r=0,t=20,b=0), yaxis_title="Daily Yield (MW)")
+    st.plotly_chart(fig_monthly, use_container_width=True)
+    
+    st.markdown(f"<p style='text-align:right; font-weight:bold;'>Total Production 2026-02: <span style='color:purple; font-size:1.5rem;'>1.26K MW</span></p>", unsafe_allow_html=True)
 
-with col_esg:
-    st.markdown("### 🌿 ESG Impact")
-    # ขยายรูปและตัวเลข ESG
-    try:
-        st.image("CO2.png", width=120)
-        st.markdown("## 27.24 T <br> <small>CO2 Saved</small>", unsafe_allow_html=True)
-        st.write("")
-        st.image("Coal.png", width=120)
-        st.markdown("## 21.79 T <br> <small>Coal Saved</small>", unsafe_allow_html=True)
-        st.write("")
-        st.image("Tree.png", width=120)
-        st.markdown("## 680 <br> <small>Trees Planted</small>", unsafe_allow_html=True)
-    except:
-        st.info("💡 Files: CO2.png, Coal.png, Tree.png")
+st.divider()
 
-with col_table:
-    st.markdown("### 📊 Station Details (kW)")
-    # ปรับแต่งตารางให้ดูง่ายและตัวอักษรใหญ่
+# 5. Bottom Section: Details & ESG
+b_left, b_mid, b_right = st.columns([1.5, 0.8, 1.2])
+
+with b_left:
+    st.markdown("### 📊 Station Breakdown")
     st.table(df_stations)
 
-st.write("---")
+with b_mid:
+    st.markdown("### 🌿 ESG")
+    try:
+        st.image("CO2.png", width=90); st.write("**27.24 T**")
+        st.image("Tree.png", width=90); st.write("**680 Trees**")
+    except: st.info("Check Image Files")
 
-# 6. P2P History (ตัวอักษรใหญ่ชัดเจน)
-st.markdown("### 🤝 Live P2P Trading History")
-st.success("### ✅ Admin → Hall (อาคาร 2) : 12.5 kWh | 3.8฿")
-st.success("### ✅ Business (32) → Lib (4) : 25.0 kWh | 4.0฿")
+with b_right:
+    st.markdown("### 🤝 P2P Trading")
+    st.success("Admin ⚡ Hall(2): 12.5 kWh")
+    st.success("Bus(32) ⚡ Lib(4): 25.0 kWh")
+    st.info("Market Status: Active (3.8 - 4.0 ฿)")
