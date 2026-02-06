@@ -2,122 +2,140 @@ import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
 import numpy as np
+import os
 
 # 1. Page Configuration
-st.set_page_config(page_title="AETHERA NETZERO PLATFORM", layout="wide")
+st.set_page_config(page_title="AETHERA COMMAND PLATFORM", layout="wide")
 
 st.markdown("""
     <style>
-    /* ปรับแต่งชื่อ Platform และเพิ่มช่องไฟ (Margin Bottom) */
-    .platform-name {
+    /* ปรับแต่ง Header ให้มีช่องไฟตามที่คุณนุต้องการ */
+    .header-section { margin-bottom: 30px; }
+    .platform-title {
         font-size: 1.8rem !important;
         font-weight: 700;
         color: #1e3a8a;
-        letter-spacing: 3px;
-        margin-bottom: 25px !important; /* เพิ่มช่องไฟให้มากขึ้นตามสั่ง */
-        border-bottom: 2px solid #e5e7eb;
-        display: inline-block;
-        padding-bottom: 5px;
+        letter-spacing: 2px;
+        margin-bottom: 30px !important; /* เว้นระยะห่างตามที่สั่ง */
     }
-    
-    /* ข้อความโครงการหลัก */
-    .project-main-title {
-        font-size: 2.8rem !important;
+    .project-name {
+        font-size: 2.4rem !important;
         font-weight: 800;
-        color: #b43d8b; /* สีชมพูเข้ม */
+        color: #b43d8b;
         line-height: 1.2;
-        margin-top: 10px;
     }
-    
-    .project-sub-title {
-        font-size: 1.8rem !important;
-        font-weight: 700;
+    .location-name {
+        font-size: 1.6rem !important;
+        font-weight: 600;
         color: #1e40af;
-        margin-top: 5px;
     }
 
-    /* ตกแต่ง Metric Card */
-    [data-testid="stMetricValue"] {
-        font-size: 3.2rem !important;
-        font-weight: 800 !important;
-        color: #1e3a8a;
+    /* สไตล์ Card สำหรับ Metric แถวบนสุด (ESG) */
+    .metric-card-top {
+        background-color: #f8fafc;
+        border-radius: 10px;
+        padding: 15px;
+        text-align: center;
+        border: 1px solid #e2e8f0;
+    }
+
+    /* สไตล์ Card สำหรับตัวเลขสถิติ (Real-Time) */
+    .stat-card {
+        background-color: #ffffff;
+        border-radius: 8px;
+        padding: 10px;
+        text-align: center;
+        border-bottom: 4px solid #1e3a8a;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
     </style>
     """, unsafe_allow_html=True)
 
-# 2. Header: Logo | Aligned Titles | NetZero Logo
-h_col1, h_col2, h_col3 = st.columns([1, 4, 1])
+# 2. Top Navigation Bar (Logo | Titles | NetZero)
+col_l, col_m, col_r = st.columns([1, 4, 1.2])
 
-with h_col1:
-    st.image("rmut.png", width=200) # โลโก้มหาวิทยาลัย
+with col_l:
+    st.image("rmut.png", width=150)
 
-with h_col2:
-    # ปรับระดับลงมาตามแนวเส้นใต้เดิมที่คุณนุเคยกำหนด
-    st.markdown("<div style='height: 120px;'></div>", unsafe_allow_html=True)
-    
-    # ส่วนของชื่อ Platform พร้อมช่องไฟที่กว้างขึ้น
-    st.markdown('<p class="platform-name">AETHERA COMMAND PLATFORM</p>', unsafe_allow_html=True)
-    
-    # ข้อความโครงการ
-    st.markdown('<p class="project-main-title">โครงการติดตั้งระบบไฟฟ้าจากพลังงานแสงอาทิตย์</p>', unsafe_allow_html=True)
-    st.markdown('<p class="project-sub-title">มทร.อีสาน ศูนย์กลางนครราชสีมา และ ศูนย์การศึกษาหนองระเวียง</p>', unsafe_allow_html=True)
+with col_m:
+    # รักษาระดับแนวเส้นใต้ และเพิ่มช่องไฟระหว่างบรรทัด
+    st.markdown("<div style='height: 80px;'></div>", unsafe_allow_html=True)
+    st.markdown('<p class="platform-title">AETHERA COMMAND PLATFORM</p>', unsafe_allow_html=True)
+    st.markdown('<p class="project-name">โครงการติดตั้งระบบไฟฟ้าจากพลังงานแสงอาทิตย์</p>', unsafe_allow_html=True)
+    st.markdown('<p class="location-name">มทร.อีสาน ศูนย์กลางนครราชสีมา และ ศูนย์การศึกษาหนองระเวียง</p>', unsafe_allow_html=True)
 
-with h_col3:
-    # วางรูป NetZero Platform 1 ในระดับที่สมดุลกัน
-    st.markdown("<div style='height: 100px;'></div>", unsafe_allow_html=True)
-    st.image("NetZero_Platform_1.png", width=180)
+with col_r:
+    st.markdown("<div style='height: 90px;'></div>", unsafe_allow_html=True)
+    if os.path.exists("NetZero_Platform_1.png"):
+        st.image("NetZero_Platform_1.png", width=180)
+    else:
+        st.markdown("<p style='text-align:right; font-weight:bold;'>NetZero_Platform 1</p>", unsafe_allow_html=True)
 
+# 3. Row 1: ESG & Environment Cards (5 Columns Style)
 st.write("")
-st.divider()
+ec1, ec2, ec3, ec4, ec5 = st.columns(5)
+with ec1:
+    st.markdown("<div class='metric-card-top'>☀️<br><b>CO2</b></div>", unsafe_allow_html=True)
+with ec2:
+    st.markdown("<div class='metric-card-top'>☁️<br><b>27.24 T</b><br><small>CO2 Saved</small></div>", unsafe_allow_html=True)
+with ec3:
+    st.markdown("<div class='metric-card-top'>⛰️<br><b>21.79 T</b><br><small>Coal Saved</small></div>", unsafe_allow_html=True)
+with ec4:
+    st.markdown("<div class='metric-card-top'>🌳<br><b>Trees</b><br><small>Planted</small></div>", unsafe_allow_html=True)
+with ec5:
+    st.markdown("<div class='metric-card-top'>🌳<br><b>Trees</b><br><small>Planted</small></div>", unsafe_allow_html=True)
 
-# 3. Environmental & Performance Section
-# แสดงผล 3 รูป ESG ขนาดใหญ่ในตำแหน่งเดิม (กรอบสีน้ำเงิน)
-e_pad, e1, e2, e3, e_pad2 = st.columns([0.8, 1, 1, 1, 0.8])
-with e1:
-    st.image("CO2.png", width=140)
-    st.metric("CO2 Saved", "27.24 T")
-with e2:
-    st.image("Coal.png", width=140)
-    st.metric("Coal Saved", "21.79 T")
-with e3:
-    st.image("Tree.png", width=140)
-    st.metric("Trees Planted", "680 Trees")
+# 4. Row 2: Statistics Metrics Grid (6 Columns Style)
+st.write("")
+m1, m2, m3, m4, m5, m6 = st.columns(6)
+m1.metric("Real-Time (kW)", "2,854.56")
+m2.metric("Total Yield (MW)", "54.473")
+m3.metric("Peak Capacity (kW)", "2,854.56")
+m4.metric("Total Yield (MW)", "28.80")
+m5.metric("Peak Capacity (kW)", "10")
+m6.metric("P2P Volume Today", "80.3")
 
-st.divider()
+# 5. Row 3: Main Charts (Production & Power Mix)
+st.write("")
+c_left, c_right = st.columns(2)
 
-# 4. Analytics Dashboard (24h Trend, Power Mix, Station Details)
-# ส่วนนี้ยังคงข้อมูลครบถ้วนทั้ง 10 สถานีและกราฟวิเคราะห์
-col_left, col_right = st.columns(2)
-
-with col_left:
-    st.subheader("📊 24-Hour Production Trend (kW)")
-    # กราฟเทรนด์สีส้มทอง
+with c_left:
+    st.subheader("⚡ 24-Hour Details 00 (kW)")
+    # กราฟเหลือง/ส้ม ตามรูปตัวอย่าง
     hours = [f"{i:02d}:00" for i in range(24)]
-    gen = [0,0,0,0,0,50,300,900,1800,2500,2854,2700,2400,1900,1100,400,80,0,0,0,0,0,0,0]
-    fig = go.Figure(go.Scatter(x=hours, y=gen, fill='tozeroy', line_color='#f59e0b'))
-    fig.update_layout(height=300, margin=dict(l=0,r=0,t=0,b=0))
-    st.plotly_chart(fig, use_container_width=True)
+    gen_data = [5, 5, 5, 10, 20, 100, 500, 1200, 2200, 2800, 2854, 2700, 2300, 1500, 800, 200, 50, 10, 5, 5, 5, 5, 5, 5]
+    fig_gen = go.Figure(go.Scatter(x=hours, y=gen_data, fill='tozeroy', line_color='#f59e0b', name="Today Power Mix"))
+    fig_gen.update_layout(height=350, margin=dict(l=10,r=10,t=10,b=10))
+    st.plotly_chart(fig_gen, use_container_width=True)
 
-    st.subheader("📋 Station Details (10 Buildings)")
-    df = pd.DataFrame([
-        {"อาคาร": "สำนักส่งเสริมวิชาการฯ (35)", "kW": 485.76, "Zone": "ศูนย์กลาง"},
-        {"อาคาร": "คณะบริหารธุรกิจ (32)", "kW": 400.00, "Zone": "ศูนย์กลาง"},
-        {"อาคาร": "G กลุ่มวิชาชีพเครื่องกล", "kW": 354.56, "Zone": "หนองระเวียง"},
-        {"อาคาร": "อาคารเรียนรวม 7", "kW": 314.24, "Zone": "ศูนย์กลาง"},
-        {"อาคาร": "อาคาร A (สำรอง)", "kW": 180.00, "Zone": "ศูนย์กลาง"},
-        {"อาคาร": "อาคาร B (สำรอง)", "kW": 170.00, "Zone": "ศูนย์กลาง"}
-    ])
-    st.table(df)
-
-with col_right:
-    st.subheader("⚡ Today Power Mix")
+with c_right:
+    st.subheader("⚡ Today Power Mix (kW)")
+    # กราฟเส้นเปรียบเทียบ
     fig_mix = go.Figure()
-    fig_mix.add_trace(go.Scatter(y=np.random.normal(45, 5, 24), name="Load", fill='tozeroy', line_color='#ef4444'))
-    fig_mix.add_trace(go.Scatter(y=np.random.normal(20, 3, 24), name="Solar", fill='tozeroy', line_color='#3b82f6'))
-    fig_mix.update_layout(height=300, margin=dict(l=0,r=0,t=0,b=0))
+    fig_mix.add_trace(go.Scatter(y=np.random.normal(45, 3, 24), name="Load", line_color='#ef4444'))
+    fig_mix.add_trace(go.Scatter(y=np.random.normal(25, 2, 24), name="Solar", line_color='#3b82f6'))
+    fig_mix.update_layout(height=350, margin=dict(l=10,r=10,t=10,b=10))
     st.plotly_chart(fig_mix, use_container_width=True)
-    
-    st.subheader("📅 Monthly Performance")
-    fig_m = go.Figure(go.Bar(x=[f"{i+1:02d}" for i in range(28)], y=[80, 235, 255, 270, 245, 165]+[0]*22, marker_color='#a855f7'))
-    fig_m.update_layout(height=250, margin=dict(t=0, b=0))
-    st.plotly_chart(fig_m, use_container_width=True)
+
+# 6. Row 4: Station Details & Monthly
+st.write("")
+b_left, b_right = st.columns([1.2, 1])
+
+with b_left:
+    st.subheader("📋 Station Details")
+    # ตาราง 10 สถานีตามรูปภาพ
+    df_stations = pd.DataFrame({
+        "อาคาร": ["สำนักส่งเสริมวิชาการฯ (35)", "คณะบริหารธุรกิจ (32)", "อาคารเรียนรวม 7", "สำนักวิทยบริการฯ (4)", "หอประชุมวชิราลงกรณ (2)", "สำนักงานอธิการบดี (1)", "Sports Complex", "อาคาร A (สำรอง)", "อาคาร B (สำรอง)", "G กลุ่มวิชาชีพเครื่องกล"],
+        "Zone": ["ศูนย์กลาง"] * 9 + ["หนองระเวียง"],
+        "kW": [485.76, 400.00, 314.24, 280.00, 250.00, 220.00, 200.00, 180.00, 170.00, 354.56]
+    })
+    st.dataframe(df_stations, use_container_width=True, hide_index=True)
+
+with b_right:
+    st.subheader("📅 Monthly Generation (MW)")
+    # กราฟแท่งสีม่วง
+    months = [f"{i+1:02d}" for i in range(28)]
+    monthly_vals = [80, 235, 255, 270, 245, 165, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    fig_month = go.Figure(go.Bar(x=months, y=monthly_vals, marker_color='#a855f7'))
+    fig_month.update_layout(height=320, margin=dict(t=10, b=10))
+    st.plotly_chart(fig_month, use_container_width=True)
