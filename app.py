@@ -5,22 +5,24 @@ import plotly.express as px
 # 1. ตั้งค่าหน้าจอ
 st.set_page_config(page_title="RMUTI Smart Grid", layout="wide")
 
-# CSS ตกแต่งให้โทนสว่างและพรีเมียม
+# CSS สำหรับจัดการ Layout ของ Environment Benefits ให้สวยเหมือนในรูปตัวอย่าง
 st.markdown("""
     <style>
-    .main { background-color: #f8fafc; }
-    .env-box {
+    .main { background-color: #f0f8ff; }
+    .env-card {
+        background-color: white;
+        padding: 20px;
+        border-radius: 20px;
         text-align: center;
-        padding: 15px;
-        background-color: #ffffff;
-        border-radius: 15px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        border: 1px solid #e1e8ed;
     }
-    h1 { color: #E85D04 !important; font-weight: 800; }
+    .env-title { color: #004a7c; font-weight: bold; font-size: 18px; margin-bottom: 10px; }
+    .env-value { font-size: 24px; font-weight: bold; color: #333; margin-top: 10px; }
     </style>
     """, unsafe_allow_html=True)
 
-# 2. ข้อมูลอาคาร (9+1 Nodes)
+# 2. ข้อมูลโครงการ
 df = pd.DataFrame([
     {"Bldg": "อาคาร G (หนองระเวียง)", "kW": 354.56, "Zone": "Nong Rawiang", "Lat": 14.9435, "Lon": 102.2140},
     {"Bldg": "อาคาร 35 (ทะเบียน)", "kW": 485.76, "Zone": "Main Campus", "Lat": 14.9922, "Lon": 102.1162},
@@ -34,47 +36,40 @@ df = pd.DataFrame([
     {"Bldg": "อาคาร B", "kW": 300.00, "Zone": "Main Campus", "Lat": 14.9900, "Lon": 102.1170}
 ])
 
-# --- HEADER ---
-st.title("🏛️ RMUTI AETHERA: Smart University Grid")
-st.write("ระบบบริหารจัดการพลังงาน Phase 1 (มีนาคม 2569)")
+# --- ส่วนหัวข้อ ---
+st.markdown("<h1 style='text-align: center; color: #E85D04;'>🏛️ RMUTI AETHERA: Executive Dashboard</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center;'>ระบบบริหารจัดการพลังงานอัจฉริยะ มทร.อีสาน (Phase 1)</p>", unsafe_allow_html=True)
+
+# --- ส่วนที่ 1: Environment Benefits (ใช้รูปภาพที่คุณนุส่งมา) ---
+st.markdown("<div style='text-align: center; margin-bottom: 20px;'><span style='background-color: #00a8e8; color: white; padding: 5px 20px; border-radius: 20px;'>🔵 Environment Benefits</span></div>", unsafe_allow_html=True)
+
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    st.markdown("<div class='env-card'><div class='env-title'>CO2 Emission Saved</div>", unsafe_allow_html=True)
+    # ใช้รูป CO2 Cloud
+    st.image("https://i.ibb.co/L9YmYfG/co2-cloud.png", use_container_width=True)
+    st.markdown("<div class='env-value'>40.13 tons</div></div>", unsafe_allow_html=True)
+
+with col2:
+    st.markdown("<div class='env-card'><div class='env-title'>Standard Coal Saved</div>", unsafe_allow_html=True)
+    # ใช้รูป Coal in Hand
+    st.image("https://i.ibb.co/FmP0S58/coal-hand.png", use_container_width=True)
+    st.markdown("<div class='env-value'>21.93 tons</div></div>", unsafe_allow_html=True)
+
+with col3:
+    st.markdown("<div class='env-card'><div class='env-title'>Equivalent Trees Planted</div>", unsafe_allow_html=True)
+    # ใช้รูป Green Trees
+    st.image("https://i.ibb.co/DfqV8Y8/green-trees.png", use_container_width=True)
+    st.markdown("<div class='env-value'>1,507 trees</div></div>", unsafe_allow_html=True)
 
 st.divider()
 
-# --- ส่วนที่ 1: Environment Benefits (ดึงรูปจาก Link ตรง) ---
-st.markdown("<h3 style='text-align: center; color: #006699;'>🔵 Environment Benefits</h3>", unsafe_allow_html=True)
-e1, e2, e3 = st.columns(3)
+# --- ส่วนที่ 2: แผนที่และรายละเอียด (2 คอลัมน์) ---
+m_left, m_right = st.columns([1.5, 1])
 
-with e1:
-    st.markdown("<div class='env-box'>", unsafe_allow_html=True)
-    st.write("**CO2 Emission Saved**")
-    # รูปเมฆ CO2
-    st.image("https://cdn-icons-png.flaticon.com/512/2683/2683833.png", width=120)
-    st.metric("", "40.13 tons")
-    st.markdown("</div>", unsafe_allow_html=True)
-
-with e2:
-    st.markdown("<div class='env-box'>", unsafe_allow_html=True)
-    st.write("**Standard Coal Saved**")
-    # รูปถ่านหิน/ประหยัดพลังงาน
-    st.image("https://cdn-icons-png.flaticon.com/512/3569/3569724.png", width=120)
-    st.metric("", "21.93 tons")
-    st.markdown("</div>", unsafe_allow_html=True)
-
-with e3:
-    st.markdown("<div class='env-box'>", unsafe_allow_html=True)
-    st.write("**Equivalent Trees Planted**")
-    # รูปต้นไม้
-    st.image("https://cdn-icons-png.flaticon.com/512/628/628283.png", width=120)
-    st.metric("", "1,507 trees")
-    st.markdown("</div>", unsafe_allow_html=True)
-
-st.divider()
-
-# --- ส่วนที่ 2: แผนที่และกราฟ ---
-col_left, col_right = st.columns([1.5, 1])
-
-with col_left:
-    st.subheader("🌐 Digital Twin Map")
+with m_left:
+    st.subheader("🌐 ผังโครงข่ายดิจิทัล (Digital Twin)")
     fig = px.scatter_mapbox(df, lat="Lat", lon="Lon", color="Zone", size="kW",
                             hover_name="Bldg", zoom=11.2, height=450,
                             color_discrete_map={"Nong Rawiang": "#00A8E8", "Main Campus": "#E85D04"},
@@ -82,24 +77,10 @@ with col_left:
     fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
     st.plotly_chart(fig, use_container_width=True)
 
-with col_right:
-    st.subheader("📊 Generation Details")
+with m_right:
+    st.subheader("📊 ข้อมูลการติดตั้ง")
     st.bar_chart(df.set_index("Bldg")["kW"])
-    st.dataframe(df[["Bldg", "kW"]].sort_values("kW", ascending=False), hide_index=True)
+    st.dataframe(df[["Bldg", "kW"]], hide_index=True)
 
-# --- ส่วนที่ 3: P2P Trading ---
 st.divider()
-st.subheader("🤝 Smart P2P Trading (Simulation)")
-t_col1, t_col2 = st.columns(2)
-with t_col1:
-    st.table(pd.DataFrame({
-        "Seller (ผู้ส่ง)": ["อาคาร 35", "อาคาร G", "อาคาร 32"],
-        "Buyer (ผู้รับ)": ["อธิการบดี", "อาคาร 4", "หอประชุม"],
-        "Amount": ["45.2 kWh", "122.5 kWh", "60.0 kWh"]
-    }))
-with t_col2:
-    st.success("ROI Estimation: 4.5 Years")
-    st.info("Status: สำรวจหน้างานแล้ว 100%")
-    st.progress(25)
-
-st.caption("RMUTI Smart Grid Platform by AETHERA")
+st.caption("RMUTI Smart Grid Platform - Powered by AETHERA")
